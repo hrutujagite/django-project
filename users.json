@@ -1,0 +1,38 @@
+[
+{
+  "model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$870000$oNZlt0YZ2XEWBYxzukzDsa$HXcmbKSD+fT7l3T+VfHNPUlwvdugXmW2uXBmcJaLQ4I=",
+    "last_login": "2025-02-06T14:36:58.057Z",
+    "is_superuser": true,
+    "username": "hrutuja",
+    "first_name": "",
+    "last_name": "",
+    "email": "hrutuja@college.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2024-12-17T07:25:56.030Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 16,
+  "fields": {
+    "password": "pbkdf2_sha256$870000$2z8YDODb9pdiQlWDeInjk7$rXOcA8SOMG95TXoNa9psXH84RJQDuOFnIlnEFpJuxzY=",
+    "last_login": "2025-02-03T08:43:50.978Z",
+    "is_superuser": false,
+    "username": "harshali",
+    "first_name": "",
+    "last_name": "",
+    "email": "1023132@comp.fcrit.ac.in",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-01-04T11:03:56.139Z",
+    "groups": [],
+    "user_permissions": []
+  }
+}
+]

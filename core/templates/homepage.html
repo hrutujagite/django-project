@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NoteNook - Homepage</title>
     <link rel="stylesheet" href="{% static 'core/style.css' %}">
+    
 </head>
 <body>
     <header>
@@ -19,6 +20,7 @@
             </ul>
         </nav>
         <div class="cta-buttons">
+            <a href="{% url 'question_list' %}"class="cta-signup">Q&A Forum</a>
             <a href="{% url 'login' %}" class="cta-login">Login</a>
             <a href="{% url 'signup' %}" class="cta-signup">Signup</a>
         </div>

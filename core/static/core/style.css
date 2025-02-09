@@ -80,7 +80,7 @@ nav a:hover {
 .hero {
     text-align: center;
     padding: 60px 10%;
-    background: url('background-image.jpg') no-repeat center center/cover;
+    background: url('images/back.jpg') no-repeat center center/cover;
     color: #fff;
 }
 

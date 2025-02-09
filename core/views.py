@@ -9,13 +9,12 @@ from django.core.exceptions import ValidationError
 from django.core.signing import Signer
 from .forms import SignUpForm
 
-
 # Initialize the signer for generating tokens
 signer = Signer()
 
 # View for homepage
 def homepage(request):
-    return render(request, 'homepage.html')  # Render homepage template
+    return render(request, 'homepage.html')
 
 # View for login
 def user_login(request):
@@ -31,35 +30,26 @@ def user_login(request):
             login(request, user)
             return redirect('homepage')
         else:
-            # Check if the username exists
             if User.objects.filter(username=username).exists():
                 messages.error(request, "Invalid password. Please try again.")
             else:
                 messages.error(request, "Account does not exist. Please sign up.")
 
-    # Check if email was recently verified
     email_verified = request.session.pop('email_verified', False)
-
-    # Render login page with optional email verification message
     return render(request, 'login.html', {'email_verified': email_verified})
-
 
 # View for email verification
 def verify_email(request):
-    token = request.GET.get('token')  # Token passed via query parameter
+    token = request.GET.get('token')
     if token:
         try:
-            # Unsigned token to get the user ID
             user_id_from_token = signer.unsign(token)
-            user = User.objects.get(id=user_id_from_token)  # Fetch the user using the ID from token
+            user = User.objects.get(id=user_id_from_token)
 
-            # If user exists and the token matches
-            user.is_active = True  # Activate the user account
+            user.is_active = True
             user.save()
-# Set session variable to display success message only once
             request.session['email_verified'] = True
-
-            return redirect('login')  # Redirect to login after successful email verification
+            return redirect('login')
 
         except (ValidationError, User.DoesNotExist):
             messages.error(request, "Invalid verification link.")
@@ -70,9 +60,6 @@ def verify_email(request):
 
 # Function to validate the email format
 def validate_email(email):
-    """
-    Validates the email format specifically for FCRIT domain emails.
-    """
     email_regex = r'^[a-zA-Z0-9]+@([a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*)\.fcrit\.ac\.in$'
     if not re.match(email_regex, email):
         raise ValidationError("Invalid email format. The email must be of the format 'anything@fcrit.ac.in' or 'rollno@branch.fcrit.ac.in'.")
@@ -81,9 +68,12 @@ def validate_email(email):
 # Signup view to handle user registration and email verification
 def signup(request):
     if request.method == 'POST':
+        print(request.POST) 
         form = SignUpForm(request.POST)
         if form.is_valid():
             # Extract data from cleaned data
+            first_name = form.cleaned_data.get('first_name')  # Added first name
+            last_name = form.cleaned_data.get('last_name')    # Added last name
             email = form.cleaned_data.get('email')
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
@@ -93,8 +83,14 @@ def signup(request):
                 validate_email(email)
 
                 # Create the user in the database but keep it inactive initially
-                user = User.objects.create_user(username=username, email=email, password=password)
-                user.is_active = False  # Set user as inactive until email is verified
+                user = User.objects.create_user(
+                    username=username, 
+                    email=email, 
+                    password=password,
+                    first_name=first_name,  # Save first name
+                    last_name=last_name     # Save last name
+                )
+                user.is_active = False
                 user.save()
 
                 # Generate the signed token for verification
@@ -109,31 +105,28 @@ def signup(request):
                 send_mail(
                     'Please Verify Your Email',
                     f'Click the following link to verify your email: {verification_link}',
-                    'notenookteam@gmail.com',  # Sender email, replace with your email
-                    [email],  # Recipient email
+                    'notenookteam@gmail.com',  # Sender email
+                    [email],
                     fail_silently=False,
                 )
 
                 # Success message to inform the user
                 messages.success(request, "Account created successfully! Please verify your email.")
-                return redirect('email_verification_sent')  # Redirect to a success or verification page
+                return redirect('email_verification_sent')
 
             except ValidationError as e:
-                # If email format is invalid
                 messages.error(request, str(e))
             except Exception as e:
-                # Error handling
                 messages.error(request, f"An error occurred: {str(e)}")
         else:
-            # Form errors will be handled automatically in the template
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f"{field.capitalize()}: {error}")
     else:
         form = SignUpForm()
 
-    return render(request, 'signup.html', {'form': form})  # Return to signup page if form is not valid
+    return render(request, 'signup.html', {'form': form})
 
 # View for email verification sent confirmation page
 def email_verification_sent(request):
-    return render(request, 'email_verification_sent.html')  # Render template to show the email verification sent message
+    return render(request, 'email_verification_sent.html')

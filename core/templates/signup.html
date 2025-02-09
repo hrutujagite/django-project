@@ -31,21 +31,35 @@
 
             <!-- Full Name -->
             <div class="input-group">
-                <label for="full_name">Full Name</label>
+                <label for="first_name">First Name</label>
                 <input 
                     type="text" 
-                    id="full_name" 
-                    name="full_name" 
-                    placeholder="Enter your full name" 
-                    value="{{ request.POST.full_name|default:'' }}" 
+                    id="first_name_name" 
+                    name="first_name" 
+                    placeholder="Enter your first name" 
+                    value="{{ request.POST.first_name|default:'' }}" 
                     required
-                    aria-describedby="full_name_error"
+                    aria-describedby="irst_name_error"
                 >
-                {% if form.full_name.errors %}
-                    <p id="full_name_error" class="error-text">{{ form.full_name.errors.0 }}</p>
+                {% if form.first_name.errors %}
+                    <p id="first_name_error" class="error-text">{{ form.first_name.errors.0 }}</p>
                 {% endif %}
             </div>
-
+            <div class="input-group">
+                <label for="last_name">SurName/Last Name</label>
+                <input 
+                    type="text" 
+                    id="last_name_name" 
+                    name="last_name" 
+                    placeholder="Enter your  Surname" 
+                    value="{{ request.POST.last_name|default:'' }}" 
+                    required
+                    aria-describedby="last_name_error"
+                >
+                {% if form.last_name.errors %}
+                    <p id="last_name_error" class="error-text">{{ form.last_name.errors.0 }}</p>
+                {% endif %}
+            </div>
             <!-- Username -->
             <div class="input-group">
                 <label for="username">Username</label>

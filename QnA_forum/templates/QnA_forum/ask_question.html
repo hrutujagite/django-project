@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if question %}Edit Question{% else %}Ask a Question{% endif %} - NoteNook</title>
+    <link rel="stylesheet" href="{% static 'QnA_forum/QnA.css' %}">
+</head>
+<body>
+    <header>
+        <h1>{% if question %}Edit Your Question{% else %}Ask a Question{% endif %}</h1>
+        <nav>
+            <ul>
+                <li><a href="{% url 'homepage' %}">Home</a></li>
+                <li><a href="{% url 'question_list' %}">Q&A Forum</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="ask-container">
+        <h2>{% if question %}Edit Your Question{% else %}Post Your Question{% endif %}</h2>
+        <form method="POST" class="form-container">
+            {% csrf_token %}
+            <div class="input-group">
+                <label for="subject">Select Subject:</label>
+                <select name="subject" id="subject" required>
+                    {% for subject in subjects %}
+                        <option value="{{ subject.id }}" {% if question and question.subject.id == subject.id %}selected{% endif %}>{{ subject.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="content">Your Question:</label>
+                <textarea name="content" id="content" required>{% if question %}{{ question.content }}{% endif %}</textarea>
+            </div>
+            <button type="submit" class="btn-primary">{% if question %}Save Changes{% else %}Post Question{% endif %}</button>
+        </form>
+    </section>
+
+    <footer>
+        <div class="footer">&copy; 2024 NoteNook. All rights reserved.</div>
+    </footer>
+</body>
+</html>

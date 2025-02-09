@@ -17,9 +17,17 @@ Including another URLconf
 # project_name/urls.py
 from django.contrib import admin
 from django.urls import path, include  # Import include to include the core app's URLs
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),  # Admin page
     path('', include('core.urls')),  # Include the URLs from the core app (main URL pattern)
+    path('QnA_forum/', include('QnA_forum.urls')),  # ✅ This connects the Q&A Forum
+
 ]
 
+
+# ✅ Serve uploaded images in development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

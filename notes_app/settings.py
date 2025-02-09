@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
+    'QnA_forum',
 ]
 
 MIDDLEWARE = [
@@ -76,10 +77,16 @@ WSGI_APPLICATION = 'notes_app.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME':  'notenook_project',
+    'USER': 'postgres',  # PostgreSQL user
+    'PASSWORD': 'harshali*2005',  # Password for PostgreSQL user
+    'HOST': 'localhost',  # Use 'localhost' if the database is local
+    'PORT':'5432',
+
     }
 }
+
 
 
 # Password validation
@@ -138,3 +145,7 @@ EMAIL_HOST_USER = 'notenookteam@gmail.com'  # Replace with your email
 EMAIL_HOST_PASSWORD = 'werv vbgb qfeo zcii'  # Replace with your email password
 DEFAULT_FROM_EMAIL = 'notenookteam@gmail.com'  # Same email as above
 
+import os
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
