@@ -5,6 +5,8 @@ body {
     color: #333;
     margin: 0;
     padding: 0;
+    
+    
 }
 
 /* Header Styling */
@@ -122,7 +124,43 @@ header {
     resize: none;
     background: #eef3fc;
     color: #333;
+    white-space: pre-line;
 }
+/* Small Image Styling */
+.small-answer-image {
+    width: 120px; /* Small size initially */
+    height: auto;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.small-answer-image:hover {
+    transform: scale(1.1); /* Slight zoom effect on hover */
+}
+
+/* Fullscreen Background (Initially Hidden) */
+.fullscreen-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8); /* Dark background */
+    display: none; /* Hidden initially */
+    align-items: center; /* Center image vertically */
+    justify-content: center; /* Center image horizontally */
+    z-index: 1000; /* Ensure it's above other elements */
+}
+
+/* Enlarged Image */
+.fullscreen-image {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease-in-out;
+}
+
 
 /* Upload and Submit Buttons */
 .btn-upload, .btn-submit {

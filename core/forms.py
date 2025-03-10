@@ -1,4 +1,5 @@
 from django import forms
+from .models import Profile 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 import re
@@ -6,13 +7,30 @@ import re
 # Custom email validator function
 def validate_email(value):
     # Check for student email (roll number + branch)
-    if re.match(r'^[a-zA-Z0-9]+@[a-zA-Z]+\.fcrit\.ac\.in$', value):
+    if re.match(r'^[0-9]{7}@comp\.fcrit\.ac\.in$', value):
         return value  # valid student email
     # Check for teacher email (anything@fcrit.ac.in)
-    elif re.match(r'^[a-zA-Z0-9]+@fcrit\.ac\.in$', value):
+    elif re.match(r'^[a-zA-Z]+(\.[a-zA-Z]+)*@fcrit\.ac\.in$', value):
         return value  # valid teacher email
     else:
         raise ValidationError("Please enter a valid FCRIT email address.")
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['bio']  # Only allow editing the bio
+
+from django import forms
+from .models import Profile
+
+class ProfileEditForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    last_name = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    bio = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3}), required=False)
+
+    class Meta:
+        model = Profile
+        fields = ["first_name", "last_name", "bio"]
 
 # SignUpForm for user registration
 class SignUpForm(forms.Form):

@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
+from datetime import timedelta
+from django.utils.timezone import now
+
 
 class Subject(models.Model):
     """Model to store subjects (Only superusers can add/edit)"""
@@ -8,14 +11,19 @@ class Subject(models.Model):
     def __str__(self):
         return self.name
 
+
 class Question(models.Model):
     """Model to store questions posted by users"""
     content = models.TextField()  # ✅ Single field for asking question
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)  # Link to Subject model
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # User who asked the question
     created_at = models.DateTimeField(auto_now_add=True)
-    is_flagged = models.BooleanField(default=False)
-
+    pinned_by = models.ManyToManyField(User, related_name="pinned_questions", blank=True)
+    report_count = models.PositiveIntegerField(default=0)
+    reported_by = models.ManyToManyField(User, related_name="reported_questions", blank=True)  # Track users who reported
+    
+    
+   
     def __str__(self):
         return f"Question by {self.user.username} on {self.subject.name}"
 
@@ -26,9 +34,24 @@ class Question(models.Model):
     def can_delete(self, user):
         """Check if the user can delete this question"""
         return user == self.user or user.is_superuser
+    
+    def report(self, user):
+        """Increase the report count and add the user to the reported_by list"""
+        if user not in self.reported_by.all():
+            self.report_count += 1
+            self.reported_by.add(user)
+            self.save()
+
 
     def get_sorted_answers(self):
         return self.answers.annotate(vote_count=models.Sum('votes__vote_type')).order_by('-vote_count', '-created_at')
+    
+    def unreport(self, user):
+        """Decrease the report count and remove the user from the reported_by list"""
+        if user in self.reported_by.all():
+            self.report_count = max(0, self.report_count - 1)  # Prevent negative count
+            self.reported_by.remove(user)
+            self.save()
 
 class Answer(models.Model):
     """Model to store answers linked to a question"""
@@ -51,6 +74,16 @@ class Answer(models.Model):
         return self.upvote_count() - self.downvote_count()
     def __str__(self):
         return f"Answer by {self.user.username} on {self.question.subject.name}"
+    
+    def can_edit(self, user):
+        """Check if the user can edit this answer (Users: 10 min limit, Admins: Anytime)"""
+        time_limit = self.created_at + timedelta(minutes=60)
+        return user == self.user and now() <= time_limit or user.is_superuser
+
+    def can_delete(self, user):
+        """Users and admins can delete answers anytime"""
+        return user == self.user or user.is_superuser
+
 
 class AnswerImage(models.Model):
     """Model to store multiple images linked to an answer"""
@@ -59,6 +92,7 @@ class AnswerImage(models.Model):
 
     def __str__(self):
         return f"Image for Answer {self.answer.id}"
+
 
 class Vote(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
