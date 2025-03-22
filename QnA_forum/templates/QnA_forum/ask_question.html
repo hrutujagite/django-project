@@ -1,11 +1,15 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
+{% block content %}
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% if question %}Edit Question{% else %}Ask a Question{% endif %} - NoteNook</title>
     <link rel="stylesheet" href="{% static 'QnA_forum/QnA.css' %}">
+    <link rel="stylesheet" href="{% static 'core/style.css' %}">
+    
 </head>
 <body>
     <header>
@@ -38,8 +42,6 @@
         </form>
     </section>
 
-    <footer>
-        <div class="footer">&copy; 2024 NoteNook. All rights reserved.</div>
-    </footer>
+    
 </body>
-</html>
+{% endblock %}

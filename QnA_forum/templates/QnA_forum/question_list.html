@@ -1,5 +1,6 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
+{% block content %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -46,23 +47,36 @@
             {% for question in questions %}
                 <div class="question-card">
                     <div class="question-header">
+                         <!-- Pin/Unpin Icon -->
+                    <a href="{% url 'toggle_pin_question' question.id %}" class="pin-icon">
+                        {% if request.user in question.pinned_by.all %}
+                            <i class="fas fa-thumbtack text-warning"></i> <!-- Pinned -->
+                        {% else %}
+                            <i class="far fa-bookmark text-muted"></i> <!-- Not pinned -->
+                        {% endif %}
+                    </a>
                         <h3><a href="{% url 'question_detail' question.id %}">{{ question.content }}</a></h3>
+                        <a href="{% url 'toggle_report_question' question.id %}" 
+                        class="{% if request.user in question.reported_by.all %} text-muted {% else %} text-dark {% endif %}" 
+                        style="text-decoration: none;">
+                         <i class="fas fa-flag"></i> 
+                         {% if request.user in question.reported_by.all %}
+                             Reported
+                         {% else %}
+                             Report
+                         {% endif %}
+                     </a>
+                     
+                    
                         <span class="subject-badge">{{ question.subject.name }}</span>
                     </div>
+                    
                     <p class="question-meta">Asked by: <span class="username">{{ question.user.username }}</span> on {{ question.created_at }}</p>
                     
-                    <!-- Display the first answer (if available) -->
-                    {% if question.answers.all %}
-                        <div class="answer-preview">
-                            <p><strong>First Answer:</strong> {{ question.answers.first.content }}</p>
-                            <p class="answer-meta">Answered by: <span class="username">{{ question.answers.first.user.username }}</span></p>
-                        </div>
-                    {% else %}
-                        <p class="no-answer"><em>No answers yet. Be the first to answer!</em></p>
-                    {% endif %}
+                   
 
                     <div class="question-actions">
-                        <a href="{% url 'question_detail' question.id %}" class="btn btn-secondary"><i class="fas fa-eye"></i> View More</a>
+                        <a href="{% url 'question_detail' question.id %}" class="btn btn-secondary"><i class="fas fa-eye"></i> Answers</a>
                         {% if request.user == question.user or request.user.is_superuser %}
                             <a href="{% url 'edit_question' question.id %}" class="btn btn-edit"><i class="fas fa-edit"></i> Edit</a>
                             <a href="{% url 'delete_question' question.id %}" class="btn btn-delete"><i class="fas fa-trash-alt"></i> Delete</a>
@@ -79,4 +93,4 @@
         <p>&copy; 2024 NoteNook. All rights reserved.</p>
     </footer>
 </body>
-</html>
+{% endblock%}

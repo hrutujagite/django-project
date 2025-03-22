@@ -1,12 +1,12 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
+{% block content %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NoteNook - Homepage</title>
     <link rel="stylesheet" href="{% static 'core/style.css' %}">
-    
 </head>
 <body>
     <header>
@@ -20,40 +20,60 @@
             </ul>
         </nav>
         <div class="cta-buttons">
-            <a href="{% url 'question_list' %}"class="cta-signup">Q&A Forum</a>
+            <a href="{% url 'question_list' %}" class="cta-signup">Q&A Forum</a>
             <a href="{% url 'login' %}" class="cta-login">Login</a>
             <a href="{% url 'signup' %}" class="cta-signup">Signup</a>
         </div>
     </header>
 
-    <section class="hero" id="home">
-        <h2>Welcome to NoteNook</h2>
-        <p>Upload, Access and Discuss Notes Effortlessly!</p>
-        <a href="#get-started">Get Started</a>
+    <section class="hero" id="home" style="background-image: url('{% static "images/bg.jpg" %}');">
+         <h2>Welcome to NoteNook</h2>
+         <p>Upload, Access, and Discuss Notes Effortlessly!</p>
+         <a href="{% url 'login' %}">Get Started</a>
     </section>
-
-    <section class="features" id="features">
+    <section class="about-section" id='about'>
+        <h2>Simplify Learning with Notenook</h2>
+        <p>Notenook is your go-to platform for accessing and sharing study materials at FCRIT. Whether you're a student looking for notes or a teacher uploading resources, Notenook makes the process effortless.  
+    
+           With a verified collection of notes and an interactive Q&A forum, students and teachers can collaborate, ask questions, and learn together. Say goodbye to scattered study materials—everything you need is in one place.  
+    
+           Join Notenook today and make learning easier than ever!</p>
+        </section>
+    
+    <div class="features" id="features">
+        <h2>Key Features</h2>
+        
         <div class="feature">
-            <h3>Upload Notes</h3>
-            <p>Share and access educational resources easily.</p>
+            <img src="{% static 'images/upload.jpg' %}" alt="Share and access educational resources easily.">
+            <div class="feature-text">
+                <h3>Upload and Search Notes</h3>
+                <p>Share your notes easily with your classmates</p>
+            </div>
         </div>
+    
+        <div class="feature reverse">  <!-- ADD the "reverse" class to the second element -->
+            <img src="{% static 'images/discuss_forum.jpg' %}" alt="Engage with peers and discuss topics in real-time.">
+            <div class="feature-text">
+                <h3>Q&A Forum </h3>
+                <p>Engage in topic-based Q&A sessions</p>
+            </div>
+        </div>
+    
         <div class="feature">
-            <h3>Interactive Forum</h3>
-            <p>Engage with peers and discuss topics in real-time.</p>
+            <img src="{% static 'images/secure_access.jpg' %}" alt="Your data is protected with top-notch security measures.">
+            <div class="feature-text">
+                <h3>Secure Access of Notes</h3>
+                <p>Only verified users can access content.</p>
+            </div>
         </div>
-        <div class="feature">
-            <h3>Secure Access</h3>
-            <p>Your data is protected with top-notch security measures.</p>
-        </div>
-    </section>
-
-    <section class="about" id="about">
-        <h2>About NoteNook</h2>
-        <p>NoteNook is a platform designed to simplify the process of sharing and accessing academic resources while providing a space for meaningful discussions.</p>
-    </section>
+    </div>
+    
+    
+    
+    
 
     <footer id="contact">
-        <p>Contact Us: info@notenook.com | +123 456 7890</p>
+        <p>Contact Us: notenookteam@gmail.com </p>
     </footer>
 </body>
-</html>
+{% endblock %}

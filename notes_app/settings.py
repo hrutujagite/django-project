@@ -71,6 +71,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'notes_app.wsgi.application'
 
+LOGIN_URL = "/login/"
+
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -78,12 +80,12 @@ WSGI_APPLICATION = 'notes_app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME':  'notenook_project',
-    'USER': 'postgres',  # PostgreSQL user
-    'PASSWORD': 'harshali*2005',  # Password for PostgreSQL user
-    'HOST': 'localhost',  # Use 'localhost' if the database is local
-    'PORT':'5432',
-
+        'NAME':  'railway',
+        'USER': 'postgres',  # PostgreSQL user
+        'PASSWORD': 'EnQMYNuedJhMLMqlalOqzulGsqmbKYym',  # Password for PostgreSQL user
+        'HOST': 'yamanote.proxy.rlwy.net',  # Use 'localhost' if the database is local
+        'PORT':'38600',
+        'CONN_MAX_AGE': 600,
     }
 }
 

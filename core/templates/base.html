@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'core/base.css' %}">
+    
+
+</head>
+<body>
+    {% if messages %}
+            {% for message in messages %}
+                <div class="message-box 
+                    {% if message.tags == 'success' %}success
+                    {% elif message.tags == 'error' %}error
+                    {% elif message.tags == 'warning' %}warning
+                    {% elif message.tags == 'info' %}info
+                    {% endif %}">
+                    
+                    {{ message }}
+                    
+                    <button class="
+                        {% if message.tags == 'success' %}btn-success
+                        {% elif message.tags == 'error' %}btn-error
+                        {% elif message.tags == 'warning' %}btn-warning
+                        {% elif message.tags == 'info' %}btn-info
+                        {% endif %}" onclick="this.parentElement.style.display='none'">
+                        Ok
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <main>
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+
+</body>
+</html>

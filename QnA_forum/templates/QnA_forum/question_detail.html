@@ -1,5 +1,7 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
+{% block content %}
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,6 +11,7 @@
     <link rel="stylesheet" href="{% static 'QnA_forum/detail.css' %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
 </head>
 <body>
     <header class="text-center py-3">
@@ -39,36 +42,47 @@
         <!-- Scrollable Answers Section -->
         <div class="answer-list">
             {% for answer in question.answers.all %}
-                <div class="answer-box">
-                    <div class="vote-section">
-                        <a href="{% url 'upvote_answer' answer.id %}" class="vote-btn upvote"><i class="fas fa-arrow-up"></i></a>
-                        <span class="vote-count">{{ answer.upvote_count }} Upvotes | {{ answer.downvote_count }} Downvotes</span>
-                        <a href="{% url 'downvote_answer' answer.id %}" class="vote-btn downvote"><i class="fas fa-arrow-down"></i></a>
-                    </div>
-                    <div class="answer-content">
-                        <p>{{ answer.content }}</p>
-                        <p class="answer-meta">Answered by: <span class="username">{{ answer.user.username }}</span> on {{ answer.created_at }}</p>
+        <div class="answer-box">
+            <div class="vote-section">
+                <a href="{% url 'upvote_answer' answer.id %}" class="vote-btn upvote"><i class="fas fa-arrow-up"></i></a>
+                <span class="vote-count">{{ answer.upvote_count }} Upvotes | {{ answer.downvote_count }} Downvotes</span>
+                <a href="{% url 'downvote_answer' answer.id %}" class="vote-btn downvote"><i class="fas fa-arrow-down"></i></a>
+            </div>
+        <div class="answer-content">
+            <p>{{ answer.content }}</p>
+            <p class="answer-meta">Answered by: <span class="username">{{ answer.user.username }}</span> on {{ answer.created_at }}</p>
 
-                        <!-- Display uploaded images for this answer -->
-                        {% if answer.images.all %}
-                            <div class="answer-images">
-                                {% for image in answer.images.all %}
-                                    <img src="{{ image.image.url }}" alt="Answer Image">
-                                {% endfor %}
-                            </div>
-                        {% endif %}
+            
+            {% if answer.images.all %}
+    <div class="answer-images">
+        {% for image in answer.images.all %}
+            <!-- Small Image -->
+            <img src="{{ image.image.url }}" alt="Answer Image" class="small-answer-image" onclick="openFullScreen(this)">
+        {% endfor %}
+    </div>
+{% endif %}
 
-                        {% if request.user == answer.user or request.user.is_superuser %}
-                            <div class="answer-actions">
-                                <a href="{% url 'edit_answer' answer.id %}" class="btn btn-edit"><i class="fas fa-edit"></i> Edit</a>
-                                <a href="{% url 'delete_answer' answer.id %}" class="btn btn-delete"><i class="fas fa-trash-alt"></i> Delete</a>
-                            </div>
-                        {% endif %}
-                    </div>
+<!-- Fullscreen Image Container (Initially Hidden) -->
+<div id="fullscreenContainer" class="fullscreen-container" onclick="closeFullScreen()">
+    <img id="fullscreenImage" class="fullscreen-image">
+</div>
+
+ 
+
+
+           <!-- Action Buttons (Edit + Delete) -->
+            {% if request.user == answer.user or request.user.is_superuser %}
+                <div class="answer-actions">
+                    <a href="{% url 'delete_answer' answer.id %}" class="btn btn-delete"><i class="fas fa-trash-alt"></i> Delete</a>
                 </div>
-            {% empty %}
-                <p>No answers yet. Be the first to answer!</p>
-            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+{% endfor %}
+
+        
+       
+
         </div>
     </section>
 
@@ -79,7 +93,7 @@
         <div class="answer-form-container">
             <form method="POST" enctype="multipart/form-data" onsubmit="return validateImages()" class="answer-form">
                 {% csrf_token %}
-                <textarea name="content" placeholder="Write your answer..." required></textarea>
+            <textarea name="content" placeholder="Write your answer..." required></textarea>
 
                 <!-- Upload Button -->
                 <label for="imageUpload" class="btn-upload">
@@ -105,6 +119,24 @@
             }
             return true;
         }
-    </script>
-</body>
-</html>
+        
+            function openFullScreen(imageElement) {
+                let fullscreenContainer = document.getElementById("fullscreenContainer");
+                let fullscreenImage = document.getElementById("fullscreenImage");
+        
+                fullscreenImage.src = imageElement.src; // Set the clicked image as fullscreen
+                fullscreenContainer.style.display = "flex"; // Show fullscreen view
+            }
+        
+            function closeFullScreen() {
+                document.getElementById("fullscreenContainer").style.display = "none"; // Hide fullscreen view
+            }
+        
+        
+           
+        
+        </script>
+          
+            
+    </body>
+    {% endblock %}

@@ -1,5 +1,6 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
+{% block content%}
 <html lang="en">
 
 <head>
@@ -46,7 +47,7 @@
                 {% endif %}
             </div>
             <div class="input-group">
-                <label for="last_name">SurName/Last Name</label>
+                <label for="last_name">Last Name</label>
                 <input 
                     type="text" 
                     id="last_name_name" 
@@ -144,4 +145,4 @@
 
 </body>
 
-</html>
+{% endblock%}

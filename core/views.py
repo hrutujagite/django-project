@@ -5,10 +5,12 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.core.mail import send_mail
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.core.signing import Signer
-from .forms import SignUpForm
-
+from .forms import *
+from .models import Profile
+from   QnA_forum.models import Question  # Assuming questions are stored here
 # Initialize the signer for generating tokens
 signer = Signer()
 
@@ -60,10 +62,19 @@ def verify_email(request):
 
 # Function to validate the email format
 def validate_email(email):
-    email_regex = r'^[a-zA-Z0-9]+@([a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*)\.fcrit\.ac\.in$'
-    if not re.match(email_regex, email):
-        raise ValidationError("Invalid email format. The email must be of the format 'anything@fcrit.ac.in' or 'rollno@branch.fcrit.ac.in'.")
-    return email
+    STUDENT_REGEX = r'^[0-9]{7}@comp\.fcrit\.ac\.in$'
+    FACULTY_REGEX = r'^[a-zA-Z]+(\.[a-zA-Z]+)*@fcrit\.ac\.in$'
+
+
+    if re.match(STUDENT_REGEX, email):
+        return email, "student"
+    elif re.match(FACULTY_REGEX, email):
+        return email, "teacher"
+    else:
+        raise ValidationError("Invalid email format. Please use a valid student or faculty email.")
+
+
+
 
 # Signup view to handle user registration and email verification
 def signup(request):
@@ -80,7 +91,7 @@ def signup(request):
 
             try:
                 # Validate the email format
-                validate_email(email)
+                email, role = validate_email(email)
 
                 # Create the user in the database but keep it inactive initially
                 user = User.objects.create_user(
@@ -92,6 +103,9 @@ def signup(request):
                 )
                 user.is_active = False
                 user.save()
+                if not Profile.objects.filter(user=user).exists():
+                  Profile.objects.create(user=user, role=role)
+
 
                 # Generate the signed token for verification
                 token = signer.sign(user.pk)
@@ -129,4 +143,57 @@ def signup(request):
 
 # View for email verification sent confirmation page
 def email_verification_sent(request):
-    return render(request, 'email_verification_sent.html')
+    return render(request, 'homepage.html')
+
+@login_required
+def my_profile(request):
+    profile = request.user.profile  # Get logged-in user's profile
+    form = ProfileUpdateForm(instance=profile)
+
+    if request.method == 'POST':
+        form = ProfileUpdateForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('my_profile')  # Redirect to profile page after update
+
+    return render(request, 'core/profile.html', {'profile': profile, 'form': form})
+
+
+ 
+
+
+@login_required
+def profile_view(request):
+    profile = Profile.objects.get(user=request.user)
+    asked_questions = Question.objects.filter(user=request.user)
+    pinned_questions = Question.objects.filter(pinned_by=request.user)
+   # uploaded_notes = Note.objects.filter(user=request.user)
+
+    # Separate student & teacher views
+   # pending_notes = None
+   # if profile.role == "teacher":
+    #    pending_notes = Note.objects.filter(status="pending")
+    #elif profile.role == "student":
+     #   pending_notes = Note.objects.filter(user=request.user, status="sent_for_approval")
+
+    context = {
+        "profile": profile,
+        "asked_questions": asked_questions,
+        "pinned_questions": pinned_questions,
+        #"uploaded_notes": uploaded_notes,
+       # "pending_notes": pending_notes,
+    }
+    return render(request, "core/profile.html", context)
+
+@login_required
+def edit_profile(request):
+    profile = Profile.objects.get(user=request.user)
+    if request.method == "POST":
+        form = ProfileEditForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect("profile")  # Redirect to profile page after edit
+    else:
+        form = ProfileEditForm(instance=profile)
+
+    return render(request, "core/edit_profile.html", {"form": form})

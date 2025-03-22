@@ -2,9 +2,11 @@ from django.shortcuts import render, redirect ,get_object_or_404
 from .models import Question, Subject,Answer,Vote,AnswerImage
 from django.contrib.auth.decorators import login_required
 from .forms import AnswerForm
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+import json
+from django.http import JsonResponse
 
+@login_required
 def question_list(request):
     """Show all questions, filtered by subject if selected"""
     subject_id = request.GET.get('subject')  # Get selected subject from the dropdown
@@ -16,6 +18,7 @@ def question_list(request):
         questions = Question.objects.all().order_by('-created_at')
 
     return render(request, 'QnA_forum/question_list.html', {'questions': questions, 'subjects': subjects, 'selected_subject': subject_id})
+
 
 @login_required
 def ask_question(request):
@@ -36,6 +39,7 @@ def ask_question(request):
 def question_detail(request, question_id):
     question = get_object_or_404(Question, id=question_id)
     return render(request, 'QnA_forum/question_list.html', {'question': question})
+
 
 
 @login_required
@@ -60,12 +64,38 @@ def edit_question(request, question_id):
     subjects = Subject.objects.all()
     return render(request, 'QnA_forum/ask_question.html', {'question': question, 'subjects': subjects})
 
+
+@login_required
+def toggle_pin_question(request, question_id):
+    question = get_object_or_404(Question, id=question_id)
+    
+    if request.user in question.pinned_by.all():
+        question.pinned_by.remove(request.user)  # Unpin
+    else:
+        question.pinned_by.add(request.user)  # Pin
+
+    return redirect(request.META.get('HTTP_REFERER', 'home'))  # Redirect back
+
+def toggle_report_question(request, question_id):
+    """Toggle between reporting and unreporting a question"""
+    question = get_object_or_404(Question, id=question_id)
+
+    if request.user in question.reported_by.all():
+        question.unreport(request.user)
+        messages.success(request, "You have unreported this question.")
+    else:
+        question.report(request.user)
+        messages.success(request, "This question has been reported successfully.")
+
+    return redirect('question_list')  # Redirect to your question list page
+
 @login_required
 def question_detail(request, question_id):
     """Display a single question and handle answer submission."""
     question = get_object_or_404(Question, id=question_id)
     answers = question.answers.all()  # Get all answers related to this question
-
+    for answer in answers:
+        answer.can_edit_permission = answer.can_edit(request.user)
     if request.method == "POST":
         form = AnswerForm(request.POST)
         if form.is_valid():
@@ -89,7 +119,8 @@ def question_detail(request, question_id):
 
     else:
         form = AnswerForm()
-
+    for answer in answers:
+        answer.can_edit_permission = answer.can_edit(request.user)
     return render(request, 'QnA_forum/question_detail.html', {
         'question': question,
         'answers': answers,
@@ -143,32 +174,19 @@ def downvote_answer(request, answer_id):
 
     return redirect('question_detail', question_id=answer.question.id)
 
-@login_required
-def edit_answer(request, answer_id):
-    """Allows users to edit their own answers."""
-    answer = get_object_or_404(Answer, id=answer_id)
-
-    # Check if the logged-in user is the answer owner
-    if request.user != answer.user and not request.user.is_superuser:
-        return redirect('question_detail', question_id=answer.question.id)
-
-    if request.method == "POST":
-        form = AnswerForm(request.POST, instance=answer)
-        if form.is_valid():
-            form.save()
-            return redirect('question_detail', question_id=answer.question.id)
-    else:
-        form = AnswerForm(instance=answer)
-
-    return render(request, 'edit_answer.html', {'form': form, 'answer': answer})
 
 @login_required
 def delete_answer(request, answer_id):
-    """Allows users to delete their own answers."""
+    """Allow users to delete their own answers & admins to delete any answer."""
     answer = get_object_or_404(Answer, id=answer_id)
 
-    # Check if the logged-in user is the answer owner or an admin
-    if request.user == answer.user or request.user.is_superuser:
-        answer.delete()
+    
 
+    if request.user == answer.user or request.user.is_superuser:
+        answer.delete() 
+        messages.success(request, "Answer deleted successfully.")
+        return redirect('question_detail', question_id=answer.question.id)
+
+    messages.error(request, "You are not authorized to delete this answer.")
     return redirect('question_detail', question_id=answer.question.id)
+
