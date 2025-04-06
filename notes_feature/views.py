@@ -6,7 +6,9 @@ from django.contrib import messages
 from .models import Notes
 from .forms import NotesUploadForm
 from django.db.models import Q  
-
+from django.http import JsonResponse
+from django.template.loader import render_to_string
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -58,27 +60,24 @@ def pending_notes(request):
     return render(request, 'notes_feature/pending_notes.html', {'notes': notes})
 
 def search_notes(request):
-    query = request.GET.get("q", "")
+    query = request.GET.get("q", "").strip()
     department = request.GET.get("department", "")
     semester = request.GET.get("semester", "")
 
-    # Fetch only approved notes
     notes = Notes.objects.filter(status="approved")
 
-    # Apply search query if provided
     if query:
+        flexible_query = re.sub(r'(\w)', r'\1%', query)
         notes = notes.filter(
-            Q(title__icontains=query) | 
-            Q(subject__icontains=query) | 
-            Q(tags__icontains=query)
-        )
-         print(f"Filtered Notes for '{query}':", notes)
+            Q(title__icontains=query) |
+            Q(subject__icontains=query) |
+            Q(tags__icontains=query) |
+            Q(title__icontains=flexible_query)
+        ).distinct()
 
-    # Apply department filter
     if department:
         notes = notes.filter(department=department)
 
-    # Apply semester filter
     if semester:
         notes = notes.filter(semester=semester)
 
@@ -89,4 +88,9 @@ def search_notes(request):
         "selected_semester": semester,
         "semesters": range(1, 9),
     }
+
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        html = render_to_string("notes_feature/partials/search_results.html", context)
+        return JsonResponse({"html": html})
+
     return render(request, "notes_feature/search_notes.html", context)
