@@ -1,0 +1,37 @@
+<h2>Search Notes</h2>
+
+<form method="GET" action="{% url 'search_notes' %}">
+    <input type="text" name="q" placeholder="Search notes..." value="{{ query }}">
+    
+    <select name="department">
+        <option value="">All Departments</option>
+        <option value="CS" {% if selected_department == "CS" %}selected{% endif %}>Computer Science</option>
+        <option value="ME" {% if selected_department == "ME" %}selected{% endif %}>Mechanical Engineering</option>
+        <option value="EE" {% if selected_department == "EE" %}selected{% endif %}>Electrical Engineering</option>
+        <!-- Add more departments -->
+    </select>
+
+    <select name="semester">
+        <option value="">All Semesters</option>
+        {% for i in semesters %}  <!-- ✅ Use 'semesters' from context -->
+            <option value="{{ i }}" {% if selected_semester == i|stringformat:"s" %}selected{% endif %}>
+                Semester {{ i }}
+            </option>
+        {% endfor %}
+    </select>
+    
+
+    <button type="submit">Search</button>
+</form>
+
+{% if notes %}
+    <ul>
+        {% for note in notes %}
+            <li>
+                <strong>{{ note.title }}</strong> - {{ note.subject }} (Sem {{ note.semester }}, {{ note.get_department_display }})
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No matching notes found.</p>
+{% endif %}
