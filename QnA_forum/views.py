@@ -142,8 +142,12 @@ def delete_question(request, question_id):
 
 @login_required
 def upvote_answer(request, answer_id):
-    """Allows users to upvote an answer."""
+    """Allows users to upvote an answer (except their own)."""
     answer = get_object_or_404(Answer, id=answer_id)
+
+    # Prevent the answer author from voting on their own answer
+    if answer.user == request.user:
+        return redirect('question_detail', question_id=answer.question.id)
 
     # Remove any existing downvote by the user
     answer.votes.filter(user=request.user, vote_type=-1).delete()
@@ -156,11 +160,14 @@ def upvote_answer(request, answer_id):
         Vote.objects.create(user=request.user, answer=answer, vote_type=1)
 
     return redirect('question_detail', question_id=answer.question.id)
-
 @login_required
 def downvote_answer(request, answer_id):
-    """Allows users to downvote an answer."""
+    """Allows users to downvote an answer (except their own)."""
     answer = get_object_or_404(Answer, id=answer_id)
+
+    # Prevent the answer author from voting on their own answer
+    if answer.user == request.user:
+        return redirect('question_detail', question_id=answer.question.id)
 
     # Remove any existing upvote by the user
     answer.votes.filter(user=request.user, vote_type=1).delete()

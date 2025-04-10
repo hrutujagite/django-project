@@ -17,22 +17,29 @@ def is_teacher_or_admin(user):
 
 @login_required
 def upload_notes(request):
-    if request.method == "POST":
-        form = NotesUploadForm(request.POST, request.FILES)
-        if form.is_valid():
-            note = form.save(commit=False)
-            note.uploaded_by = request.user
-            note.status = 'pending'
-            note.save()
-            messages.success(request, "✅ Note uploaded successfully and is pending approval.")
-            return redirect('notes_list')
+ if request.method == "POST":
+    form = NotesUploadForm(request.POST, request.FILES)
+    if form.is_valid():
+        note = form.save(commit=False)
+        note.uploaded_by = request.user
+
+        # ✅ Set status based on user role
+        if hasattr(request.user, 'profile') and request.user.profile.role == 'teacher':
+            note.status = 'approved'
+            messages.success(request, "✅ Note uploaded and automatically approved.")
         else:
-            messages.error(request, "❌ Error: Please correct the form errors.")
+            note.status = 'pending'
+            messages.success(request, "✅ Note uploaded successfully and is pending approval.")
 
+        note.save()
+        return redirect('notes_list')
     else:
-        form = NotesUploadForm()
+        messages.error(request, "❌ Error: Please correct the form errors.")
+ else:
+    form = NotesUploadForm()
 
-    return render(request, "notes_feature/upload_notes.html", {"form": form})
+ return render(request, "notes_feature/upload_notes.html", {"form": form})
+
 
 @login_required
 def approve_note(request, note_id):
@@ -58,7 +65,7 @@ def pending_notes(request):
 
     notes = Notes.objects.filter(status='pending')
     return render(request, 'notes_feature/pending_notes.html', {'notes': notes})
-
+@login_required
 def search_notes(request):
     query = request.GET.get("q", "").strip()
     department = request.GET.get("department", "")

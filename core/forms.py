@@ -1,8 +1,10 @@
+import re
 from django import forms
 from .models import Profile 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-import re
+from django.contrib.auth.forms import PasswordChangeForm
+
 
 # Custom email validator function
 def validate_email(value):
@@ -15,22 +17,7 @@ def validate_email(value):
     else:
         raise ValidationError("Please enter a valid FCRIT email address.")
 
-class ProfileUpdateForm(forms.ModelForm):
-    class Meta:
-        model = Profile
-        fields = ['bio']  # Only allow editing the bio
 
-from django import forms
-from .models import Profile
-
-class ProfileEditForm(forms.ModelForm):
-    first_name = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    last_name = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    bio = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3}), required=False)
-
-    class Meta:
-        model = Profile
-        fields = ["first_name", "last_name", "bio"]
 
 # SignUpForm for user registration
 class SignUpForm(forms.Form):
@@ -76,3 +63,25 @@ class SignUpForm(forms.Form):
     def clean(self):
         cleaned_data = super().clean()
         return cleaned_data  # ✅ Fixed return statement
+
+
+
+
+# Form for User model fields (username, first_name, last_name)
+class UserEditForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name']
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)  # Get user instance passed in kwargs
+        super().__init__(*args, **kwargs)
+        if user:
+            self.fields['username'].initial = user.username
+            self.fields['first_name'].initial = user.first_name
+            self.fields['last_name'].initial = user.last_name
+# Form for password change
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    class Meta:
+        model = User
+        fields = ['old_password', 'new_password1', 'new_password2']

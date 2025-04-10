@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'core',
     'QnA_forum',
+    'notes_feature'
 ]
 
 MIDDLEWARE = [
@@ -72,7 +73,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'notes_app.wsgi.application'
 
 LOGIN_URL = "/login/"
-
+LOGOUT_REDIRECT_URL = "/" 
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases

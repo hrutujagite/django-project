@@ -43,11 +43,18 @@
         <div class="answer-list">
             {% for answer in question.answers.all %}
         <div class="answer-box">
-            <div class="vote-section">
-                <a href="{% url 'upvote_answer' answer.id %}" class="vote-btn upvote"><i class="fas fa-arrow-up"></i></a>
-                <span class="vote-count">{{ answer.upvote_count }} Upvotes | {{ answer.downvote_count }} Downvotes</span>
-                <a href="{% url 'downvote_answer' answer.id %}" class="vote-btn downvote"><i class="fas fa-arrow-down"></i></a>
-            </div>
+            {% if user != answer.user %}
+    <div class="vote-section">
+        <a href="{% url 'upvote_answer' answer.id %}" class="vote-btn upvote">
+            <i class="fas fa-arrow-up"></i>
+        </a>
+        <span class="vote-count">{{ answer.upvote_count }} Upvotes | {{ answer.downvote_count }} Downvotes</span>
+        <a href="{% url 'downvote_answer' answer.id %}" class="vote-btn downvote">
+            <i class="fas fa-arrow-down"></i>
+        </a>
+    </div>
+{% endif %}
+
         <div class="answer-content">
             <p>{{ answer.content }}</p>
             <p class="answer-meta">Answered by: <span class="username">{{ answer.user.username }}</span> on {{ answer.created_at }}</p>

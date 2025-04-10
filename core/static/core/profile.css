@@ -1,90 +1,352 @@
-/* General Styling */
-body {
-    background-color: #f8f9fa;
-    font-family: 'Arial', sans-serif;
-}
-
-/* Profile Page Layout */
-.profile-container {
+.custom-header {
     display: flex;
-    height: 100vh;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to right, #ff66b2, #99ccff);
+    padding: 18px 40px; /* More padding for breathing room */
+    height: 90px;        /* Increased header height */
+    color: white;
+    position: relative;
+    font-family: sans-serif;
+    font-size: 20px;     /* Base font size increased */
 }
 
-/* Fixed Sidebar with Custom Colors */
-.fixed-sidebar {
-    width: 280px;
-    background: #ffffff;
-    padding: 20px;
-    color: #333;
-    position: fixed;
-    height: 100vh;
-    left: 0;
-    top: 0;
-    overflow-y: auto;
-    border-right: 2px solid #ddd;
-    box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
+/* Section alignment */
+.left-section,
+.middle-section,
+.right-section {
+    display: flex;
+    align-items: center;
 }
 
-.fixed-sidebar h3 {
-    text-align: center;
-    font-size: 22px;
-    margin-bottom: 20px;
-    color: #002855;
+/* Center NoteNook logo */
+.middle-section {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
-.fixed-sidebar ul {
+/* Profile section */
+.profile-title {
+    margin-left: 10px;
+    font-size: 26px;      /* Larger profile title */
+    font-weight: bold;
+}
+
+.bi-person-circle {
+    font-size: 30px;      /* Bigger icon */
+}
+
+/* Center title */
+.middle-section h1 {
+    font-size: 34px;      /* Bigger central title */
+    font-weight: bold;
+}
+
+/* Nav links */
+nav ul {
+    display: flex;
     list-style: none;
+    margin: 0;
     padding: 0;
+    gap: 24px;
 }
 
-.fixed-sidebar ul li {
-    margin-bottom: 15px;
-}
-
-.fixed-sidebar ul li a {
-    display: block;
-    padding: 12px;
-    background: #f1f1f1;
-    border-radius: 5px;
-    color: #333;
+nav a {
     text-decoration: none;
-    text-align: center;
-    transition: background 0.3s, transform 0.2s;
+    color: white;
+    font-weight: bold;
+    font-size: 22px;      /* Larger nav links */
 }
 
-.fixed-sidebar ul li a:hover {
-    background: #e0e0e0;
-    transform: translateX(5px);
+/* Logout button */
+.logout-btn {
+    color: #ffffff;
+    background-color: #ff66b2;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+    margin-left: 15px;
 }
 
-/* Dynamic Content Section */
-.content {
-    flex: 1;
-    margin-left: 300px;
-    padding: 20px;
+.logout-btn:hover {
+    background-color: #ff3385;
+    color: #ffffff;
+    transform: scale(1.05);
 }
-
-/* Profile Card */
-.profile-card {
-    background: white;
+/* Profile Container */
+.container {
+    background-color: #fdf6fb;
+    border-radius: 25px;
     padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    max-width: 600px;
-    margin: auto;
-    border: 2px solid #ddd;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    color: #333;
+    margin-bottom: 40px;
 }
 
-.profile-card h1 {
-    font-size: 26px;
-    color: #002855;
+/* Profile Header */
+.profile-header h1 {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: #000000;
 }
 
-.profile-card .email,
-.profile-card .role,
-.profile-card .bio {
-    font-size: 16px;
+.profile-header p {
+    font-size: 1.1rem;
     color: #555;
-    margin: 5px 0;
+}
+
+/* Profile Buttons */
+.profile-buttons .btn-edit {
+    background-color: #ff69b4; /* Bright Pink */
+    border-color: #ff69b4;
+    font-weight: 600;
+    border-radius: 25px;
+    padding: 10px 25px;
+    color: white;
+}
+
+.profile-buttons .btn-change {
+    background-color: #00bfff; /* Light Blue */
+    border-color: #00bfff;
+    font-weight: 600;
+    border-radius: 25px;
+    padding: 10px 25px;
+    color: white;
+}
+
+.profile-buttons .btn-edit:hover,
+.profile-buttons .btn-change:hover {
+    transform: scale(1.05);
+    transition: all 0.3s ease-in-out;
+}
+
+
+.modal-content {
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+#editProfileModal .modal-header {
+    background-color: #ff69b4;  /* Bright Pink */
+    color: #fff;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+
+#editProfileModal .modal-header .modal-title {
+    font-weight: bold;
+}
+
+#changePasswordModal .modal-header {
+    background-color: #00bfff;  /* Homepage Blue */
+    color: #fff;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+
+#changePasswordModal .modal-header .modal-title {
+    font-weight: bold;
+}
+
+
+.modal-body form {
+    padding: 15px;
+}
+
+/* General inputs and textareas */
+.modal-body form input,
+.modal-body form select,
+.modal-body form textarea {
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    padding: 10px 15px;
+    width: 100%;
+    margin-bottom: 15px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+/* Focus state in Edit Profile Modal */
+#editProfileModal .modal-body form input:focus,
+#editProfileModal .modal-body form select:focus,
+#editProfileModal .modal-body form textarea:focus {
+    border-color: #ff69b4;
+    outline: none;
+}
+
+/* Focus state in Change Password Modal */
+#changePasswordModal .modal-body form input:focus,
+#changePasswordModal .modal-body form select:focus,
+#changePasswordModal .modal-body form textarea:focus {
+    border-color: #00bfff;
+    outline: none;
+}
+
+
+#editProfileModal .btn-success {
+    background-color: #ff69b4;
+    border: none;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 25px;
+    padding: 10px 20px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+#editProfileModal .btn-success:hover {
+    background-color: #ff4d94;
+    transform: scale(1.05);
+}
+
+/* Change Password Button in Change Password Modal */
+#changePasswordModal .btn-warning {
+    background-color: #00bfff;
+    border: none;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 25px;
+    padding: 10px 20px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+#changePasswordModal .btn-warning:hover {
+    background-color: #009ace;
+    transform: scale(1.05);
+}
+
+.modal-header .close {
+    color: #fff;
+    opacity: 1;
+}
+/* Nav Tabs Container */
+.nav-tabs {
+    border-bottom: 2px solid #FFA500;
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Individual Tabs */
+.nav-tabs .nav-link {
+    color: #444;
+    background: white;
+    border: 1px solid #FFA500;
+    border-radius: 20px;
+    margin-right: 8px;
+    padding: 8px 16px;
+    transition: all 0.3s ease;
+}
+
+/* Hover effect */
+.nav-tabs .nav-link:hover {
+    background-color: #ffe5c4;
+    color: #000;
+}
+
+/* Active tab styling */
+.nav-tabs .nav-link.active {
+    background: linear-gradient(90deg, #FF69B4, #FFA500);
+    color: white;
+    border-color: #FF69B4 #FFA500 #FFA500 #FF69B4;
+    font-weight: bold;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+    .nav-tabs .nav-link {
+        margin-bottom: 8px;
+        width: 100%;
+        text-align: center;
+    }
+}
+
+
+/* Tab content box styling */
+.custom-tab-content {
+    background: #fff;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+/* Each tab heading */
+.tab-heading {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* List items inside tabs */
+.tab-list .tab-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    padding: 15px 20px;
+    background-color: #fefefe;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Button group alignment in each list item */
+.tab-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+/* Buttons inside tab content */
+.tab-buttons .btn {
+    border-radius: 50px;
+    padding: 6px 16px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+/* Primary button (View More, Download, etc.) */
+.tab-buttons .btn-primary {
+    background-color: #ADD8E6;
+    border: none;
+    color: #000;
+}
+.tab-buttons .btn-primary:hover {
+    background-color: #87ceeb;
+    color: #000;
+}
+
+/* Warning button (Edit) */
+.tab-buttons .btn-warning {
+    background-color: #FFA500;
+    border: none;
+    color: #000;
+}
+.tab-buttons .btn-warning:hover {
+    background-color: #ff8c00;
+}
+
+/* Danger button (Delete, Unpin) */
+.tab-buttons .btn-danger {
+    background-color: #FF69B4;
+    border: none;
+    color: #fff;
+}
+.tab-buttons .btn-danger:hover {
+    background-color: #e055a3;
+}
+
+/* Success button (Approve) */
+.tab-buttons .btn-success {
+    background-color: #28a745;
+    border: none;
+    color: #fff;
+}
+.tab-buttons .btn-success:hover {
+    background-color: #218838;
 }

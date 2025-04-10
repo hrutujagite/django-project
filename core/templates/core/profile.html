@@ -1,61 +1,313 @@
+{% extends 'base.html'%}
+{% load static %}
+{% block content%}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/static/css/list.css">
-    <link rel="stylesheet" href="/static/core/profile.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Profile Page</title>
+    <link rel="stylesheet" href="{% static 'core/profile.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous">
 </head>
 <body>
-    <div class="profile-container">
-        <div class="sidebar fixed-sidebar">
-            <h3>Profile Menu</h3>
-            <ul>
-                <li><a onclick="loadContent('asked_questions')">Asked Questions</a></li>
-                <li><a onclick="loadContent('pinned_questions')">Pinned Questions</a></li>
-                <li><a onclick="loadContent('uploaded_notes')">Uploaded Notes</a></li>
-                <li><a onclick="loadContent('pending_notes')">Pending Notes</a></li>
-                <li><a onclick="loadEditForm('edit_profile')">Edit Profile</a></li>
-            </ul>
+
+    <header class="custom-header">
+        <div class="left-section">
+            <i class="bi bi-person-circle"></i>
+            <span class="profile-title">My Profile</span>
         </div>
-        <div class="content" id="profile-content">
-            {% if profile %}
-                <div class="profile-card">
-                    <h1>{{ profile.user.username }}</h1>
-                    <p class="email">📧 {{ profile.user.email }}</p>
-                    <p class="role">🎓 Role: <strong>{{ profile.role }}</strong></p>
-                    <p class="bio">📝 Bio: {{ profile.bio }}</p>
+    
+        <div class="middle-section">
+            <h1>NoteNook</h1>
+        </div>
+    
+        <div class="right-section">
+            <nav>
+                <ul>
+                    <li><a href="{% url 'homepage' %}">Home</a></li>
+                    <form method="POST" action="{% url 'logout' %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="logout-btn">Logout</button>
+                    </form>
+                    
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    
+<div class="container mt-4">
+        <div class="profile-header">
+            <h1>Welcome, {{ profile.user.first_name }} {{ profile.user.last_name }}</h1>
+            <p>Role: {{ profile.role }}</p>
+        </div>
+    
+        <div class="profile-buttons mt-3">
+            <button class="btn btn-edit mb-3" data-toggle="modal" data-target="#editProfileModal">Edit Profile</button>
+            <button class="btn btn-change mb-3" data-toggle="modal" data-target="#changePasswordModal">Change Password</button>
+            
+        </div>
+
+
+    <!-- Edit Profile Modal -->
+    <div class="modal fade" id="editProfileModal" tabindex="-1" role="dialog" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-            {% else %}
-                <h1>No Profile Found</h1>
-                <p>It looks like your profile is missing.</p>
-            {% endif %}
+                <div class="modal-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ user_form.as_p }}
+                        {{ profile_form.as_p }} <!-- Add profile_form if you have one -->
+                        <button type="submit" class="btn btn-success" name="update_profile">Save Changes</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <script>
-        function loadContent(section) {
-            $.ajax({
-                url: `/profile/fetch/${section}/`,
-                type: "GET",
-                success: function(response) {
-                    let content = "<h2>" + section.replace('_', ' ') + "</h2>";
-                    response.data.forEach(item => {
-                        content += `<p><strong>${item.title}</strong><br>${item.content || item.file_url}</p>`;
-                    });
-                    $("#profile-content").html(content);
-                }
-            });
-        }
 
-        function loadEditForm() {
-            $.get("/profile/edit/", function(data) {
-                $("#profile-content").html(data);
-            });
-        }
-    </script>
+    <!-- Change Password Modal -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ password_form.as_p }}
+                        <button type="submit" class="btn btn-warning" name="change_password">Change Password</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="Tabs">
+    <!-- Tabs for switching between different sections -->
+    <ul class="nav nav-tabs mt-4" id="myTab" role="tablist">
+
+        {% if profile.role == 'student' %}
+            <li class="nav-item">
+                <a class="nav-link active" id="asked-questions-tab" data-toggle="tab" href="#asked-questions" role="tab"
+                   aria-controls="asked-questions" aria-selected="true">Asked Questions</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pinned-questions-tab" data-toggle="tab" href="#pinned-questions" role="tab"
+                   aria-controls="pinned-questions" aria-selected="false">Pinned Questions</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="uploaded-notes-tab" data-toggle="tab" href="#uploaded-notes" role="tab"
+                   aria-controls="uploaded-notes" aria-selected="false">Uploaded Notes</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="notes-for-approval-tab" data-toggle="tab" href="#notes-for-approval" role="tab"
+                   aria-controls="notes-for-approval" aria-selected="false">Notes Pending Approval</a>
+            </li>
+
+        {% elif profile.role == 'teacher' %}
+            <li class="nav-item">
+                <a class="nav-link active" id="pinned-questions-tab" data-toggle="tab" href="#pinned-questions" role="tab"
+                   aria-controls="pinned-questions" aria-selected="true">Pinned Questions</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="uploaded-notes-tab" data-toggle="tab" href="#uploaded-notes" role="tab"
+                   aria-controls="uploaded-notes" aria-selected="false">Uploaded Notes</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="notes-for-approval-tab" data-toggle="tab" href="#notes-for-approval" role="tab"
+                   aria-controls="notes-for-approval" aria-selected="false">Notes for Approval</a>
+            </li>
+        {% endif %}
+
+    </ul>
+</div>
+<!-- Tab Content -->
+<div class="tab-content mt-3 custom-tab-content tab-section" id="myTabContent">
+
+    {% if profile.role == 'student' %}
+        <!-- Asked Questions Tab -->
+        <div class="tab-pane fade show active styled-tab" id="asked-questions" role="tabpanel" aria-labelledby="asked-questions-tab">
+            <h3 class="tab-heading">Asked Questions</h3>
+            <ul class="list-group tab-list">
+                {% for question in asked_questions %}
+                <li class="list-group-item tab-item">
+                    <div class="flex-grow-1">{{ question.content }}</div>
+                    <div class="btn-group mt-2 mt-sm-0 tab-buttons">
+                        <a href="{% url 'question_detail' question.id %}" class="btn btn-sm btn-primary">View More</a>
+                        <a href="{% url 'edit_question' question.id %}" class="btn btn-sm btn-warning ml-2">Edit</a>
+                        <form action="{% url 'delete_question' question.id %}" method="post" class="ml-2">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger"
+                                onclick="return confirm('Are you sure you want to delete this question?');">
+                                Delete
+                            </button>
+                        </form>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="list-group-item tab-item">No asked questions.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    
+        <!-- Pinned Questions Tab -->
+        <div class="tab-pane fade styled-tab" id="pinned-questions" role="tabpanel" aria-labelledby="pinned-questions-tab">
+            <h3 class="tab-heading">Pinned Questions</h3>
+            <ul class="list-group tab-list">
+                {% for question in pinned_questions %}
+                <li class="list-group-item tab-item">
+                    <div class="flex-grow-1">{{ question.content }}</div>
+                    <div class="btn-group mt-2 mt-sm-0 tab-buttons">
+                        <a href="{% url 'question_detail' question.id %}" class="btn btn-sm btn-primary">View More</a>
+                        <form action="{% url 'toggle_pin_question' question.id %}" method="post" class="ml-2">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger">Unpin</button>
+                        </form>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="list-group-item tab-item">No pinned questions.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    
+        <!-- Uploaded Notes Tab -->
+        <div class="tab-pane fade styled-tab" id="uploaded-notes" role="tabpanel" aria-labelledby="uploaded-notes-tab">
+            <h3 class="tab-heading">Uploaded Notes</h3>
+            <ul class="list-group tab-list">
+                {% for note in uploaded_notes %}
+                    {% if note.status == 'approved' %}
+                    <li class="list-group-item tab-item">
+                        <div>
+                            <strong>{{ note.title }}</strong><br>
+                            <small class="text-muted">Subject: {{ note.subject }}</small>
+                        </div>
+                        <a href="{{ note.file.url }}" class="btn btn-primary btn-sm" target="_blank">Download</a>
+                    </li>
+                    {% endif %}
+                {% empty %}
+                    <li class="list-group-item tab-item">No uploaded notes.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    
+        <!-- Notes Pending Approval Tab -->
+        <div class="tab-pane fade styled-tab" id="notes-for-approval" role="tabpanel" aria-labelledby="uploaded-notes-tab">
+            <h3 class="tab-heading">Notes Pending for Approval</h3>
+            <ul class="list-group tab-list">
+                {% with has_pending=False %}
+                    {% for note in uploaded_notes %}
+                        {% if note.status == 'pending' %}
+                            {% if not has_pending %}{% with has_pending=True %}{% endwith %}{% endif %}
+                            <li class="list-group-item tab-item">
+                                <div>
+                                    <strong>{{ note.title }}</strong><br>
+                                    <small class="text-muted">Subject: {{ note.subject }}</small>
+                                </div>
+                                <a href="{{ note.file.url }}" class="btn btn-primary btn-sm" target="_blank">Download</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if not has_pending %}
+                        <li class="list-group-item tab-item">No pending notes.</li>
+                    {% endif %}
+                {% endwith %}
+            </ul>
+        </div>
+    
+    {% elif profile.role == 'teacher' %}
+        <!-- Pinned Questions Tab -->
+        <div class="tab-pane fade show active styled-tab" id="pinned-questions" role="tabpanel" aria-labelledby="pinned-questions-tab">
+            <h3 class="tab-heading">Pinned Questions</h3>
+            <ul class="list-group tab-list">
+                {% for question in pinned_questions %}
+                <li class="list-group-item tab-item">
+                    <div class="flex-grow-1">{{ question.content }}</div>
+                    <div class="btn-group mt-2 mt-sm-0 tab-buttons">
+                        <a href="{% url 'question_detail' question.id %}" class="btn btn-sm btn-primary">View More</a>
+                        <form action="{% url 'toggle_pin_question' question.id %}" method="post" class="ml-2">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger">Unpin</button>
+                        </form>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="list-group-item tab-item">No pinned questions.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    
+        <!-- Uploaded Notes Tab -->
+        <div class="tab-pane fade styled-tab" id="uploaded-notes" role="tabpanel" aria-labelledby="uploaded-notes-tab">
+            <h3 class="tab-heading">Uploaded Notes</h3>
+            <ul class="list-group tab-list">
+                {% for note in uploaded_notes %}
+                    {% if note.status == 'approved' %}
+                    <li class="list-group-item tab-item">
+                        <div>
+                            <strong>{{ note.title }}</strong><br>
+                            <small class="text-muted">Subject: {{ note.subject }}</small>
+                        </div>
+                        <a href="{{ note.file.url }}" class="btn btn-primary btn-sm" target="_blank">Download</a>
+                    </li>
+                    {% endif %}
+                {% empty %}
+                    <li class="list-group-item tab-item">No uploaded notes.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    
+        <!-- Notes Pending Approval Tab -->
+        <div class="tab-pane fade styled-tab" id="notes-for-approval" role="tabpanel" aria-labelledby="notes-for-approval-tab">
+            <h3 class="tab-heading">Notes Pending Approval</h3>
+            <ul class="list-group tab-list">
+                {% for note in notes_for_approval %}
+                <li class="list-group-item tab-item">
+                    <div>
+                        <strong>{{ note.title }}</strong><br>
+                        <small class="text-muted">Subject: {{ note.subject }}</small>
+                    </div>
+                    <div class="btn-group tab-buttons" role="group">
+                        <a href="{{ note.file.url }}" target="_blank" class="btn btn-sm btn-primary">View</a>
+                        <form action="{% url 'approve_note' note.id %}" method="post" class="ml-2">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                        </form>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="list-group-item tab-item">No notes pending approval.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+    </div>
+    
+<script src='https://code.jquery.com/jquery-3.6.0.min.js'></script> 
+<script src='https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js'></script> 
+<script src='https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js'></script> 
+
+<!-- Custom Script for Profile Functionality -->
+<script>
+// JavaScript to handle modal visibility can be added here if needed
+</script>
+
 </body>
 </html>
+{% endblock%}

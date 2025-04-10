@@ -1,5 +1,5 @@
 import re
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
@@ -10,7 +10,11 @@ from django.core.exceptions import ValidationError
 from django.core.signing import Signer
 from .forms import *
 from .models import Profile
-from   QnA_forum.models import Question  # Assuming questions are stored here
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from  QnA_forum.models import Question 
+from notes_feature.models import Notes
+from django.contrib.auth import update_session_auth_hash# Assuming questions are stored here
 # Initialize the signer for generating tokens
 signer = Signer()
 
@@ -145,55 +149,94 @@ def signup(request):
 def email_verification_sent(request):
     return render(request, 'homepage.html')
 
-@login_required
-def my_profile(request):
-    profile = request.user.profile  # Get logged-in user's profile
-    form = ProfileUpdateForm(instance=profile)
-
-    if request.method == 'POST':
-        form = ProfileUpdateForm(request.POST, instance=profile)
-        if form.is_valid():
-            form.save()
-            return redirect('my_profile')  # Redirect to profile page after update
-
-    return render(request, 'core/profile.html', {'profile': profile, 'form': form})
-
-
- 
 
 
 @login_required
 def profile_view(request):
-    profile = Profile.objects.get(user=request.user)
-    asked_questions = Question.objects.filter(user=request.user)
-    pinned_questions = Question.objects.filter(pinned_by=request.user)
-   # uploaded_notes = Note.objects.filter(user=request.user)
+    user = request.user
+    profile, created = Profile.objects.get_or_create(user=user)
+    user_form = UserEditForm(instance=user)
+    password_form = PasswordChangeForm(user)
+    if request.method == 'POST':
+        if 'update_profile' in request.POST:  # Handle edit profile form
+            user_form = UserEditForm(request.POST, instance=user)
+            if user_form.is_valid():
+                user_form.save()
+                messages.success(request, "Your profile has been updated successfully!")
+                return redirect('profile')
+            else :
+               messages.error(request, "Error updating profile. Please correct the errors below.")
+               print(user_form.errors)  
+        elif 'change_password' in request.POST:  # Handle password change form
+            password_form = PasswordChangeForm(user, request.POST)
+            if password_form.is_valid():
+                password_form.save()  # Save the new password
+                update_session_auth_hash(request, user)  # Keep user logged in after password change
+                messages.success(request, "Your password has been updated successfully!")
+                return redirect('profile')
+            else:
+                messages.error(request, "Error changing password. Please correct the errors below.")
 
-    # Separate student & teacher views
-   # pending_notes = None
-   # if profile.role == "teacher":
-    #    pending_notes = Note.objects.filter(status="pending")
-    #elif profile.role == "student":
-     #   pending_notes = Note.objects.filter(user=request.user, status="sent_for_approval")
-
+    else:
+        user_form = UserEditForm(instance=user)
+        password_form = PasswordChangeForm(user)
+   
     context = {
         "profile": profile,
-        "asked_questions": asked_questions,
-        "pinned_questions": pinned_questions,
-        #"uploaded_notes": uploaded_notes,
-       # "pending_notes": pending_notes,
+        "user_form": user_form, 
+        "password_form": password_form,
+
     }
+    if profile.role == 'student':
+        context.update({
+            "asked_questions": Question.objects.filter(user=user),
+            "pinned_questions": Question.objects.filter(pinned_by=user),
+            "uploaded_notes": Notes.objects.filter(uploaded_by=user,status='approved'),  # Uncomment if Note model exists
+            "notes_pending_for_approval": Notes.objects.filter(uploaded_by=user, status='pending'),  # Uncomment if Note model exists
+        })
+    elif profile.role == 'teacher':
+        context.update({
+            "pinned_questions": Question.objects.filter(pinned_by=user),
+            "uploaded_notes": Notes.objects.filter(uploaded_by=user),  # Uncomment if Note model exists
+            "notes_for_approval": Notes.objects.filter(status='pending'),  # Uncomment if Note model exists
+        })
+
     return render(request, "core/profile.html", context)
 
-@login_required
-def edit_profile(request):
-    profile = Profile.objects.get(user=request.user)
-    if request.method == "POST":
-        form = ProfileEditForm(request.POST, instance=profile)
-        if form.is_valid():
-            form.save()
-            return redirect("profile")  # Redirect to profile page after edit
-    else:
-        form = ProfileEditForm(instance=profile)
 
-    return render(request, "core/edit_profile.html", {"form": form})
+
+
+def update_profile(request):
+    user = request.user
+    if request.method == "POST":
+        user_form = UserEditForm(request.POST, instance=request.user)
+        
+        if user_form.is_valid():
+            user_form.save()
+            messages.success(request, "Profile updated successfully!")
+        
+        # Check if both forms are valid and redirect back to the profile page
+            return redirect("profile")
+
+    else:
+        user_form = UserEditForm(instance=user,user=user)
+
+    return render(request, "core/profile.html", {
+        "user_form": user_form,
+    })
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Keep user logged in after password change
+            return JsonResponse({"status": "success", "message": "Password changed successfully."})
+        else:
+            return JsonResponse({"status": "error", "errors": form.errors})
+    return JsonResponse({"status": "error", "message": "Invalid request."})
+
+
+

@@ -24,7 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),  # Admin page
     path('', include('core.urls')),  # Include the URLs from the core app (main URL pattern)
     path('QnA_forum/', include('QnA_forum.urls')),  # ✅ This connects the Q&A Forum
-
+    path('notes_feature/',include('notes_feature.urls'))
 ]
 
 
