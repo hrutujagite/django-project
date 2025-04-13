@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Upload Notes</h2>
+  <p>Please fill in the details below to upload your notes. Fields marked with * are required.</p>
+  
+  <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      
+      <div>
+        {{ form.title.label_tag }}<span>*</span><br>
+        {{ form.title }}
+        {% if form.title.errors %}
+          <div class="error">{{ form.title.errors }}</div>
+        {% endif %}
+      </div>
+      
+      <div>
+        {{ form.department.label_tag }}<span>*</span><br>
+        {{ form.department }}
+        {% if form.department.errors %}
+          <div class="error">{{ form.department.errors }}</div>
+        {% endif %}
+      </div>
+      
+      <div>
+        {{ form.semester.label_tag }}<span>*</span><br>
+        {{ form.semester }}
+        {% if form.semester.errors %}
+          <div class="error">{{ form.semester.errors }}</div>
+        {% endif %}
+      </div>
+      
+      <div>
+        {{ form.subject.label_tag }}<span>*</span><br>
+        {{ form.subject }}
+        {% if form.subject.errors %}
+          <div class="error">{{ form.subject.errors }}</div>
+        {% endif %}
+      </div>
+      
+      <div>
+        {{ form.tags.label_tag }}<br>
+        {{ form.tags }}
+        {% if form.tags.errors %}
+          <div class="error">{{ form.tags.errors }}</div>
+        {% endif %}
+      </div>
+      
+      <div>
+        {{ form.description.label_tag }}<br>
+        {{ form.description }}
+        {% if form.description.errors %}
+          <div class="error">{{ form.description.errors }}</div>
+        {% endif %}
+      </div>
+      
+      <div>
+        {{ form.file.label_tag }}<span>*</span><br>
+        {{ form.file }}
+        {% if form.file.errors %}
+          <div class="error">{{ form.file.errors }}</div>
+        {% endif %}
+      </div>
+      
+      <button type="submit">Upload</button>
+  </form>
+
+  <a href="{% url 'notes_list' %}">View My Notes</a>
+{% endblock %}

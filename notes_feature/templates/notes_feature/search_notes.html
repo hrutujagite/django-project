@@ -1,0 +1,92 @@
+<h2>Search Notes</h2>
+
+<form method="GET" action="{% url 'search_notes' %}">
+    <input type="text" name="q" placeholder="Search notes..." value="{{ query }}">
+    
+    <select name="department">
+        <option value="">All Departments</option>
+        <option value="CS" {% if selected_department == "CS" %}selected{% endif %}>Computer Science</option>
+        <option value="ME" {% if selected_department == "ME" %}selected{% endif %}>Mechanical Engineering</option>
+        <option value="EE" {% if selected_department == "EE" %}selected{% endif %}>Electrical Engineering</option>
+        <!-- Add more departments -->
+    </select>
+
+    <select name="semester">
+        <option value="">All Semesters</option>
+        {% for i in semesters %}  <!-- ✅ Use 'semesters' from context -->
+            <option value="{{ i }}" {% if selected_semester == i|stringformat:"s" %}selected{% endif %}>
+                Semester {{ i }}
+            </option>
+        {% endfor %}
+    </select>
+    
+
+    <button type="submit">Search</button>
+</form>
+
+<div id="results">
+    {% if notes %}
+        <ul>
+            {% for note in notes %}
+                <li>
+                    <a href="{{ note.file.url }}" target="_blank">
+                        <strong>{{ note.title }}</strong>
+                    </a>
+                    – {{ note.subject }} (Sem {{ note.semester }}, {{ note.get_department_display }})
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No matching notes found.</p>
+    {% endif %}
+</div>
+
+<script>
+    const form = document.querySelector('form');
+    const resultsDiv = document.getElementById('results');
+
+    console.log("Form found:", form);
+    console.log("Results div found:", resultsDiv);
+    
+    const debounce = (func, delay) => {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+    };
+
+    const fetchResults = () => {
+        console.log("fetchResults triggered");
+        const formData = new FormData(form);
+        const params = new URLSearchParams(formData).toString();
+        console.log("Fetching with params:", params);
+
+        fetch(`${form.action}?${params}`, {
+            headers: {
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        })
+        .then(response => {
+            console.log("Response received:", response);
+            return response.json();
+        })
+        .then(data => {
+            console.log("Data received:", data);
+            resultsDiv.innerHTML = data.html;
+        })
+        .catch(error => console.error("Fetch error:", error));
+    };
+
+    const debouncedFetch = debounce(fetchResults, 300);
+
+    form.querySelectorAll('input, select').forEach(input => {
+        input.addEventListener('input', debouncedFetch);
+        input.addEventListener('change', debouncedFetch);
+    });
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        console.log("Form submit prevented");
+    });
+</script>

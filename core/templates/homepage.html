@@ -7,6 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NoteNook - Homepage</title>
     <link rel="stylesheet" href="{% static 'core/style.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="your-integrity-hash" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
 </head>
 <body>
     <header>
@@ -20,17 +23,87 @@
             </ul>
         </nav>
         <div class="cta-buttons">
-            <a href="{% url 'question_list' %}" class="cta-signup">Q&A Forum</a>
+            {% if request.user.is_authenticated %}
+            <a href="{% url 'profile' %}" class="my-profile-btn">
+                <i class="bi bi-person-circle"></i> My Profile
+            </a>
+            </form>
+        {% else %}
             <a href="{% url 'login' %}" class="cta-login">Login</a>
-            <a href="{% url 'signup' %}" class="cta-signup">Signup</a>
-        </div>
+            <a href="{% url 'signup' %}" class="cta-signup">Sign Up</a>
+        {% endif %}
+    </div>
+    
+          
     </header>
 
     <section class="hero" id="home" style="background-image: url('{% static "images/bg.jpg" %}');">
-         <h2>Welcome to NoteNook</h2>
-         <p>Upload, Access, and Discuss Notes Effortlessly!</p>
-         <a href="{% url 'login' %}">Get Started</a>
+        <h2>Welcome to NoteNook</h2>
+        <p>Upload, Access, and Discuss Notes Effortlessly!</p>
+        <a href="{% url 'login' %}">Get Started</a>
     </section>
+    
+    
+
+   
+   <!-- Horizontal Divs for Features -->
+<div class="feature-boxes">
+    <!-- Search Notes Feature -->
+    <div class="feature-box primary">
+        <a href="{% url 'search_notes' %}">
+            <i class="fas fa-search"></i>
+            <span>Search Notes</span>
+        </a>
+    </div>
+
+    <!-- Q&A Forum Feature -->
+    <div class="feature-box secondary">
+        <a href="{% url 'question_list' %}">
+            <i class="fas fa-question-circle"></i>
+            <span>Q&A Forum</span>
+        </a>
+    </div>
+
+    <!-- Upload Notes Feature -->
+    <div class="feature-box tertiary">
+        <a href="{% url 'upload_notes' %}">
+            <i class="fas fa-upload"></i>
+            <span>Upload Notes</span>
+        </a>
+    </div>
+</div>
+
+
+<div class="features" id="features">
+    <h1>Key Features</h1>
+    <div class="slideshow-container">
+        <div class="slide">
+            <div class="feature-slide" style="background-image: url('{% static 'images/upload.jpg' %}');">
+                <div class="feature-content">
+                    <h2>Upload and Search Notes</h2>
+                    <p>Share your notes easily with your classmates.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide">
+            <div class="feature-slide" style="background-image: url('{% static 'images/discuss_forum.jpg' %}');">
+                <div class="feature-content">
+                    <h2>Q&A Forum</h2>
+                    <p>Engage in topic-based Q&A sessions.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide">
+            <div class="feature-slide" style="background-image: url('{% static 'images/secure_access.jpg' %}');">
+                <div class="feature-content">
+                    <h2>Secure Access of Notes</h2>
+                    <p>Only verified users can access content.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
     <section class="about-section" id='about'>
         <h2>Simplify Learning with Notenook</h2>
         <p>Notenook is your go-to platform for accessing and sharing study materials at FCRIT. Whether you're a student looking for notes or a teacher uploading resources, Notenook makes the process effortless.  
@@ -38,38 +111,30 @@
            With a verified collection of notes and an interactive Q&A forum, students and teachers can collaborate, ask questions, and learn together. Say goodbye to scattered study materials—everything you need is in one place.  
     
            Join Notenook today and make learning easier than ever!</p>
-        </section>
+    </section>
     
-    <div class="features" id="features">
-        <h2>Key Features</h2>
         
-        <div class="feature">
-            <img src="{% static 'images/upload.jpg' %}" alt="Share and access educational resources easily.">
-            <div class="feature-text">
-                <h3>Upload and Search Notes</h3>
-                <p>Share your notes easily with your classmates</p>
-            </div>
-        </div>
     
-        <div class="feature reverse">  <!-- ADD the "reverse" class to the second element -->
-            <img src="{% static 'images/discuss_forum.jpg' %}" alt="Engage with peers and discuss topics in real-time.">
-            <div class="feature-text">
-                <h3>Q&A Forum </h3>
-                <p>Engage in topic-based Q&A sessions</p>
-            </div>
-        </div>
-    
-        <div class="feature">
-            <img src="{% static 'images/secure_access.jpg' %}" alt="Your data is protected with top-notch security measures.">
-            <div class="feature-text">
-                <h3>Secure Access of Notes</h3>
-                <p>Only verified users can access content.</p>
-            </div>
-        </div>
-    </div>
-    
-    
-    
+        <script>
+            let slideIndex = 0;
+            showSlides();
+          
+            function showSlides() {
+              let i;
+              let slides = document.getElementsByClassName("slide");
+              for (i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+              }
+              slideIndex++;
+              if (slideIndex > slides.length) {
+                slideIndex = 1;
+              }
+              slides[slideIndex - 1].style.display = "flex";
+              setTimeout(showSlides, 5000); // Change image every 5 seconds
+            }
+          </script>
+          
+          
     
 
     <footer id="contact">

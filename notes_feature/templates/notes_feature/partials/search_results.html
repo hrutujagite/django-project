@@ -1,0 +1,14 @@
+{% if notes %}
+    <ul>
+        {% for note in notes %}
+            <li>
+                <a href="{{ note.file.url }}" target="_blank">
+                    <strong>{{ note.title }}</strong>
+                </a>
+                – {{ note.subject }} (Sem {{ note.semester }}, {{ note.get_department_display }})
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No matching notes found.</p>
+{% endif %}

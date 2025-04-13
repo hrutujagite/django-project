@@ -1,5 +1,7 @@
 from django.urls import path
+from django.urls import path, include 
 from . import views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('', views.homepage, name='homepage'),  # Homepage route
@@ -8,5 +10,9 @@ urlpatterns = [
     path('verify_email/', views.verify_email, name='verify_email'),  # Email verification route
     path('email_verification_sent/', views.email_verification_sent, name='email_verification_sent'),
     path("profile/", views.profile_view, name="profile"),
-    path("profile/edit/", views.edit_profile, name="edit_profile"),  # Confirmation page after sending verification email
+    path('update-profile/', views.update_profile, name="update_profile"),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('change-password/', views.change_password, name='change_password'), 
+    path('notes/', include('notes_feature.urls')),
+ 
 ]

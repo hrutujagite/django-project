@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'core',
     'QnA_forum',
+    'notes_feature'
 ]
 
 MIDDLEWARE = [
