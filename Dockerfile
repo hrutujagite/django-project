@@ -19,6 +19,9 @@ RUN apt-get update \
         libxml2-dev \
         libxslt1-dev \
         zlib1g-dev \
+        libcairo2-dev \
+        pkg-config \
+        cmake \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
@@ -33,4 +36,4 @@ COPY . .
 RUN python manage.py collectstatic --noinput
 
 # Run gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "core.wsgi:application"] 
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "core.wsgi:application"]
