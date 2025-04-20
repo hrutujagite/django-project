@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-ctk%o3*e-6au%#&83t83*za5gb8vg5fz5#q$2e$thp0$fr%d44'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     'localhost']
@@ -171,8 +171,8 @@ DEFAULT_FROM_EMAIL = 'notenookteam@gmail.com'  # Same email as above
 import os
 
 # CSRF Settings
-CSRF_COOKIE_SECURE = True  # Set to True in production
-CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SECURE = False  # Set to True in production
+CSRF_COOKIE_HTTPONLY = False
 CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000',
     
 ]
