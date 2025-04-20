@@ -23,9 +23,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-ctk%o3*e-6au%#&83t83*za5gb8vg5fz5#q$2e$thp0$fr%d44'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['web-production-a5059.up.railway.app',
+    'localhost']
 
 
 # Application definition
@@ -170,9 +171,12 @@ DEFAULT_FROM_EMAIL = 'notenookteam@gmail.com'  # Same email as above
 import os
 
 # CSRF Settings
-CSRF_COOKIE_SECURE = False  # Set to True in production
-CSRF_COOKIE_HTTPONLY = False
-CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000']
+CSRF_COOKIE_SECURE = True  # Set to True in production
+CSRF_COOKIE_HTTPONLY = True
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000',
+    'https://web-production-a5059.up.railway.app',
+]
+
 
 # Google Docs Viewer settings
-SITE_URL = 'http://127.0.0.1:8000'  # Change this to your actual domain in production
+SITE_URL = 'https://web-production-a5059.up.railway.app'   # Change this to your actual domain in production
