@@ -71,7 +71,7 @@ class Answer(models.Model):
 
     def total_votes(self):
         """Returns the total score (upvotes - downvotes)."""
-        return self.upvote_count() - self.downvote_count()
+        return self.votes.filter(vote_type=1).count() - self.votes.filter(vote_type=-1).count()
     def __str__(self):
         return f"Answer by {self.user.username} on {self.question.subject.name}"
     

@@ -66,6 +66,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'builtins': ['django.templatetags.static'],
         },
     },
 ]
@@ -73,7 +74,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'notes_app.wsgi.application'
 
 LOGIN_URL = "/login/"
-LOGOUT_REDIRECT_URL = "/" 
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -127,6 +129,22 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Ensure media files are served in development
+if DEBUG:
+    import mimetypes
+    mimetypes.add_type("application/pdf", ".pdf", True)
+    mimetypes.add_type("application/msword", ".doc", True)
+    mimetypes.add_type("application/vnd.openxmlformats-officedocument.wordprocessingml.document", ".docx", True)
+    mimetypes.add_type("application/vnd.ms-powerpoint", ".ppt", True)
+    mimetypes.add_type("application/vnd.openxmlformats-officedocument.presentationml.presentation", ".pptx", True)
+    mimetypes.add_type("application/vnd.ms-excel", ".xls", True)
+    mimetypes.add_type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx", True)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -137,6 +155,7 @@ STATIC_URL = 'static/'
 # Optional: You can define a path for static files to be collected for production (not needed during development)
 STATICFILES_DIRS = [
     BASE_DIR / "core" / "static",  # This ensures Django looks for static files in the core/static folder
+    BASE_DIR / "notes_feature" / "static",  # Add notes_feature static directory
 ]
 
 
@@ -150,5 +169,10 @@ DEFAULT_FROM_EMAIL = 'notenookteam@gmail.com'  # Same email as above
 
 import os
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# CSRF Settings
+CSRF_COOKIE_SECURE = False  # Set to True in production
+CSRF_COOKIE_HTTPONLY = False
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000']
+
+# Google Docs Viewer settings
+SITE_URL = 'http://127.0.0.1:8000'  # Change this to your actual domain in production

@@ -64,7 +64,7 @@
         gap: 0.5rem;
     }
 
-    select, textarea, input[type="text"] {
+    select, textarea {
         width: 100%;
         padding: 1rem;
         background: rgba(255, 255, 255, 0.1);
@@ -98,7 +98,7 @@
         resize: vertical;
     }
 
-    textarea:focus, select:focus, input[type="text"]:focus {
+    textarea:focus, select:focus {
         outline: none;
         border-color: rgba(255, 255, 255, 0.5);
         box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
@@ -169,16 +169,20 @@
 </div>
 
 <div class="ask-container">
-    <h2>Ask a Question</h2>
+    <h2>Edit Question</h2>
     <form method="post" class="form-container">
         {% csrf_token %}
         <div class="input-group">
             <label for="subject">
                 <i class="fas fa-book"></i> Subject
             </label>
-            <input type="text" class="form-control" id="subject" name="subject" placeholder="Enter the subject for your question" required>
+            <select name="subject" id="subject" required>
+                <option value="">Select a subject</option>
+                {% for subject in subjects %}
+                    <option value="{{ subject.id }}" {% if subject.id == question.subject.id %}selected{% endif %}>{{ subject.name }}</option>
+                {% endfor %}
+            </select>
         </div>
-        
         <div class="input-group">
             <label for="content">
                 <i class="fas fa-question-circle"></i> Your Question
@@ -188,11 +192,11 @@
                 id="content" 
                 placeholder="Type your question here..." 
                 required
-            ></textarea>
+            >{{ question.content }}</textarea>
         </div>
         <button type="submit" class="btn-submit">
-            <i class="fas fa-paper-plane"></i> Submit Question
+            <i class="fas fa-save"></i> Save Changes
         </button>
     </form>
 </div>
-{% endblock %}
+{% endblock %} 

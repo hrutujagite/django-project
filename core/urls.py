@@ -12,6 +12,10 @@ urlpatterns = [
     path('update-profile/', views.update_profile, name="update_profile"),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('change-password/', views.change_password, name='change_password'), 
- 
- 
+
+    # Password reset URLs using Django's built-in views with our custom templates
+    path('password-reset/', views.password_reset_request, name='password_reset'),
+    path('password-reset/done/', views.password_reset_done, name='password_reset_done'),
+    path('password-reset-confirm/', views.password_reset_confirm, name='password_reset_confirm'),
+    path('password-reset/complete/', views.password_reset_complete, name='password_reset_complete'),
 ]

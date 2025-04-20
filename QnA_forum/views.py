@@ -5,6 +5,7 @@ from .forms import AnswerForm
 from django.contrib import messages
 import json
 from django.http import JsonResponse
+from django.db import models
 
 @login_required
 def question_list(request):
@@ -25,20 +26,57 @@ def ask_question(request):
     """Allow users to ask a new question"""
     if request.method == "POST":
         content = request.POST.get("content")
-        subject_id = request.POST.get("subject")
+        subject_name = request.POST.get("subject")
 
-        if content and subject_id:
-            subject = Subject.objects.get(id=subject_id)  # Get selected subject
+        if content and subject_name:
+            # Create or get the subject
+            subject, created = Subject.objects.get_or_create(name=subject_name.strip())
+            if created:
+                messages.success(request, f"New subject '{subject_name}' created successfully!")
+            
+            # Create the question
             Question.objects.create(content=content, subject=subject, user=request.user)
-            return redirect('question_list')
+            messages.success(request, "Your question has been posted successfully!")
+            return redirect('QnA_forum:question_list')
+        else:
+            messages.error(request, "Please provide both a subject and question content.")
 
-    subjects = Subject.objects.all()  # Get all subjects for the dropdown
-    return render(request, 'QnA_forum/ask_question.html', {'subjects': subjects})
+    return render(request, 'QnA_forum/ask_question.html')
 
 
 def question_detail(request, question_id):
+    """Display a single question and handle answer submission."""
     question = get_object_or_404(Question, id=question_id)
-    return render(request, 'QnA_forum/question_list.html', {'question': question})
+    answers = question.answers.all()
+    
+    # Sort answers by total votes
+    sorted_answers = sorted(answers, key=lambda a: a.total_votes(), reverse=True)
+    
+    if request.method == "POST":
+        form = AnswerForm(request.POST)
+        if form.is_valid():
+            answer = form.save(commit=False)
+            answer.question = question
+            answer.user = request.user
+            answer.save()
+            images = request.FILES.getlist('images')
+
+            if len(images) > 3:
+                messages.error(request, "You can only upload a maximum of 3 images.")
+                return redirect('QnA_forum:question_detail', question_id=question.id)
+
+            for image in images:
+                AnswerImage.objects.create(answer=answer, image=image)
+
+            return redirect('QnA_forum:question_detail', question_id=question.id)
+    else:
+        form = AnswerForm()
+
+    return render(request, 'QnA_forum/question_detail.html', {
+        'question': question,
+        'answers': sorted_answers,
+        'form': form
+    })
 
 
 
@@ -49,7 +87,8 @@ def edit_question(request, question_id):
 
     # Ensure only the owner or an admin can edit
     if request.user != question.user and not request.user.is_superuser:
-        return redirect('question_list')  # Prevent unauthorized edits
+        messages.error(request, "You don't have permission to edit this question.")
+        return redirect('QnA_forum:question_list')  # Prevent unauthorized edits
 
     if request.method == "POST":
         content = request.POST.get("content")
@@ -59,10 +98,11 @@ def edit_question(request, question_id):
             question.content = content
             question.subject = Subject.objects.get(id=subject_id)
             question.save()
-            return redirect('question_list')  # Redirect after editing
+            messages.success(request, "Question updated successfully.")
+            return redirect('QnA_forum:question_list')  # Redirect to QnA forum after editing
 
     subjects = Subject.objects.all()
-    return render(request, 'QnA_forum/ask_question.html', {'question': question, 'subjects': subjects})
+    return render(request, 'QnA_forum/edit_question.html', {'question': question, 'subjects': subjects})
 
 
 @login_required
@@ -87,45 +127,7 @@ def toggle_report_question(request, question_id):
         question.report(request.user)
         messages.success(request, "This question has been reported successfully.")
 
-    return redirect('question_list')  # Redirect to your question list page
-
-@login_required
-def question_detail(request, question_id):
-    """Display a single question and handle answer submission."""
-    question = get_object_or_404(Question, id=question_id)
-    answers = question.answers.all()  # Get all answers related to this question
-    for answer in answers:
-        answer.can_edit_permission = answer.can_edit(request.user)
-    if request.method == "POST":
-        form = AnswerForm(request.POST)
-        if form.is_valid():
-            answer = form.save(commit=False)
-            answer.question = question
-            answer.user = request.user  # Assign current user as the answerer
-            answer.save()
-            images = request.FILES.getlist('images')  
-            
-
-            # ✅ Backend Validation: Reject more than 3 images
-            if len(images) > 3:
-                messages.error(request, "You can only upload a maximum of 3 images.")
-                return redirect('question_detail', question_id=question.id)
-
-            # ✅ Save images if within limit
-            for image in images:
-                AnswerImage.objects.create(answer=answer, image=image)
-
-            return redirect('question_detail', question_id=question.id)
-
-    else:
-        form = AnswerForm()
-    for answer in answers:
-        answer.can_edit_permission = answer.can_edit(request.user)
-    return render(request, 'QnA_forum/question_detail.html', {
-        'question': question,
-        'answers': answers,
-        'form': form
-    })
+    return redirect('QnA_forum:question_list')  # Redirect to your question list page
 
 @login_required
 def delete_question(request, question_id):
@@ -134,9 +136,9 @@ def delete_question(request, question_id):
     # Only the owner or admin can delete
     if request.user == question.user or request.user.is_superuser:
         question.delete()
-        return redirect('question_list')  # Redirect to the main Q&A page
+        return redirect('QnA_forum:question_list')  # Redirect to the main Q&A page
     else:
-        return redirect('question_detail', question_id=question.id)
+        return redirect('QnA_forum:question_detail', question_id=question.id)
 
 
 
@@ -147,19 +149,23 @@ def upvote_answer(request, answer_id):
 
     # Prevent the answer author from voting on their own answer
     if answer.user == request.user:
-        return redirect('question_detail', question_id=answer.question.id)
-
-    # Remove any existing downvote by the user
-    answer.votes.filter(user=request.user, vote_type=-1).delete()
+        messages.error(request, "You cannot vote on your own answer.")
+        return redirect('QnA_forum:question_detail', question_id=answer.question.id)
 
     # Check if user already upvoted
     existing_vote = answer.votes.filter(user=request.user, vote_type=1).first()
     if existing_vote:
         existing_vote.delete()  # Remove the upvote if already exists
+        messages.success(request, "Upvote removed.")
     else:
+        # Remove any existing downvote by the user
+        answer.votes.filter(user=request.user, vote_type=-1).delete()
+        # Create new upvote
         Vote.objects.create(user=request.user, answer=answer, vote_type=1)
+        messages.success(request, "Answer upvoted successfully.")
 
-    return redirect('question_detail', question_id=answer.question.id)
+    return redirect('QnA_forum:question_detail', question_id=answer.question.id)
+
 @login_required
 def downvote_answer(request, answer_id):
     """Allows users to downvote an answer (except their own)."""
@@ -167,33 +173,82 @@ def downvote_answer(request, answer_id):
 
     # Prevent the answer author from voting on their own answer
     if answer.user == request.user:
-        return redirect('question_detail', question_id=answer.question.id)
-
-    # Remove any existing upvote by the user
-    answer.votes.filter(user=request.user, vote_type=1).delete()
+        messages.error(request, "You cannot vote on your own answer.")
+        return redirect('QnA_forum:question_detail', question_id=answer.question.id)
 
     # Check if user already downvoted
     existing_vote = answer.votes.filter(user=request.user, vote_type=-1).first()
     if existing_vote:
         existing_vote.delete()  # Remove the downvote if already exists
+        messages.success(request, "Downvote removed.")
     else:
+        # Remove any existing upvote by the user
+        answer.votes.filter(user=request.user, vote_type=1).delete()
+        # Create new downvote
         Vote.objects.create(user=request.user, answer=answer, vote_type=-1)
+        messages.success(request, "Answer downvoted successfully.")
 
-    return redirect('question_detail', question_id=answer.question.id)
+    return redirect('QnA_forum:question_detail', question_id=answer.question.id)
 
 
 @login_required
-def delete_answer(request, answer_id):
-    """Allow users to delete their own answers & admins to delete any answer."""
+def edit_answer(request, answer_id):
     answer = get_object_or_404(Answer, id=answer_id)
-
     
+    # Check if user has permission to edit
+    if request.user != answer.user and not request.user.is_superuser:
+        messages.error(request, "You don't have permission to edit this answer.")
+        return redirect('QnA_forum:question_detail', question_id=answer.question.id)
+    
+    if request.method == 'POST':
+        content = request.POST.get('content')
+        if content:
+            answer.content = content
+            
+            # Handle image uploads
+            images = request.FILES.getlist('images')
+            if images:
+                # Check if adding new images would exceed the limit
+                current_image_count = answer.images.count()
+                if current_image_count + len(images) > 3:
+                    messages.error(request, "You can only have a maximum of 3 images per answer.")
+                    return redirect('QnA_forum:edit_answer', answer_id=answer.id)
+                
+                # Add new images
+                for image in images:
+                    AnswerImage.objects.create(answer=answer, image=image)
+            
+            # Handle image deletions
+            delete_images = request.POST.getlist('delete_images')
+            for image_id in delete_images:
+                try:
+                    image = AnswerImage.objects.get(id=image_id, answer=answer)
+                    image.delete()
+                except AnswerImage.DoesNotExist:
+                    pass
+            
+            answer.save()
+            messages.success(request, "Answer updated successfully!")
+            return redirect('QnA_forum:question_detail', question_id=answer.question.id)
+    
+    context = {
+        'answer': answer,
+        'question': answer.question
+    }
+    return render(request, 'QnA_forum/edit_answer.html', context)
 
-    if request.user == answer.user or request.user.is_superuser:
-        answer.delete() 
-        messages.success(request, "Answer deleted successfully.")
-        return redirect('question_detail', question_id=answer.question.id)
-
-    messages.error(request, "You are not authorized to delete this answer.")
-    return redirect('question_detail', question_id=answer.question.id)
+@login_required
+def delete_answer(request, answer_id):
+    answer = get_object_or_404(Answer, id=answer_id)
+    question_id = answer.question.id
+    
+    # Check if user has permission to delete
+    if request.user != answer.user and not request.user.is_superuser:
+        messages.error(request, "You don't have permission to delete this answer.")
+        return redirect('QnA_forum:question_detail', question_id=question_id)
+    
+    # Delete the answer directly
+    answer.delete()
+    messages.success(request, "Answer deleted successfully!")
+    return redirect('QnA_forum:question_detail', question_id=question_id)
 

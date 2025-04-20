@@ -19,12 +19,14 @@ from django.contrib import admin
 from django.urls import path, include  # Import include to include the core app's URLs
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import RedirectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),  # Admin page
     path('', include('core.urls')),  # Include the URLs from the core app (main URL pattern)
     path('QnA_forum/', include('QnA_forum.urls')),  # ✅ This connects the Q&A Forum
-    path('notes_feature/',include('notes_feature.urls'))
+    path('notes_feature/',include('notes_feature.urls')),
+    path('accounts/profile/', RedirectView.as_view(url='/profile/', permanent=False)),
 ]
 
 

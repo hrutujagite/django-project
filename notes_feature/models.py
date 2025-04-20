@@ -14,11 +14,12 @@ class Notes(models.Model):
 
     # Department choices; adjust as needed
     DEPARTMENT_CHOICES = [
-        ('COMMON', 'Common (First Year)'),
-        ('CS', 'Computer Science'),
-        ('ME', 'Mechanical Engineering'),
-        ('EE', 'Electrical Engineering'),
-        # Add more departments as necessary
+        ('HUMANITIES', 'Humanities'),
+        ('COMPUTER', 'Computer Engineering'),
+        ('IT', 'Information Technology'),
+        ('EXTC', 'Electronics & Telecommunication'),
+        ('ELECTRICAL', 'Electrical Engineering'),
+        ('MECHANICAL', 'Mechanical Engineering'),
     ]
     
     # Semester choices (1 through 8)
@@ -26,6 +27,7 @@ class Notes(models.Model):
 
     # Core fields
     title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True, help_text="Enter a description of your notes (optional)")
     department = models.CharField(max_length=50, choices=DEPARTMENT_CHOICES)
     semester = models.IntegerField(choices=SEMESTER_CHOICES)
     subject = models.CharField(max_length=255)
@@ -34,11 +36,11 @@ class Notes(models.Model):
         blank=True,
         help_text="Enter comma-separated tags (e.g., calculus, integration)"
     )
-    description = models.TextField()
     file = models.FileField(upload_to='notes/')
     uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notes")
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=STATUS_PENDING)
     uploaded_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.title} - {self.uploaded_by.username}"

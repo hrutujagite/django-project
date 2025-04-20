@@ -1,8 +1,0 @@
-{% for note in notes %}
-    <li>
-        {{ note.title }} - Status: {{ note.status }}
-        {% if note.status == "pending" %}
-            <a href="{% url 'approve_note' note.id %}">Approve</a>
-        {% endif %}
-    </li>
-{% endfor %}

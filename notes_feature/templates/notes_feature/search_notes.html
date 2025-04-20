@@ -1,92 +1,455 @@
-<h2>Search Notes</h2>
+{% extends "base.html" %}
+{% load static %}
 
-<form method="GET" action="{% url 'search_notes' %}">
-    <input type="text" name="q" placeholder="Search notes..." value="{{ query }}">
+{% block title %}Search Notes - Notes App{% endblock %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.1);
+        --glass-border: rgba(255, 255, 255, 0.18);
+        --glass-shadow: rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        min-height: 100vh;
+        margin: 0;
+        padding: 2rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        line-height: 1.6;
+    }
+
+    .search-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: var(--glass-bg);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px var(--glass-shadow);
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    h1 {
+        color: white;
+        font-weight: 600;
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .search-filters {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .search-input {
+        flex: 2;
+        padding: 1rem;
+        padding-left: 3rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        color: white;
+        font-family: 'Poppins', sans-serif;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: 1rem center;
+        background-size: 1.2em;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: rgba(255, 255, 255, 0.5);
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+    }
+
+    .search-input::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .filter-select {
+        flex: 1;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        color: white;
+        font-family: 'Poppins', sans-serif;
+        font-size: 1rem;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        padding-right: 2.5rem;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1em;
+    }
+
+    .filter-select option {
+        background: #764ba2;
+        color: white;
+        padding: 1rem;
+    }
+
+    .sort-options {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .sort-option {
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        color: white;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--glass-border);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 160px;
+        justify-content: center;
+        font-size: 0.95rem;
+        letter-spacing: 0.3px;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .sort-option::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+        transition: all 0.3s ease;
+    }
+
+    .sort-option i {
+        font-size: 1rem;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+    }
+
+    .sort-option span {
+        position: relative;
+        z-index: 1;
+    }
+
+    .sort-option.active {
+        background: rgba(104, 126, 234, 0.25);
+        border-color: rgba(104, 126, 234, 0.5);
+        box-shadow: 0 2px 8px rgba(104, 126, 234, 0.2);
+    }
+
+    .sort-option:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .sort-option:hover::before {
+        opacity: 0.5;
+    }
+
+    .sort-option.active:hover {
+        background: rgba(104, 126, 234, 0.3);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 12px rgba(104, 126, 234, 0.3);
+    }
+
+    .sort-option:active {
+        transform: translateY(0);
+    }
+
+    .notes-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .note-card {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .note-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .note-title {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: white;
+    }
+
+    .note-meta {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .note-meta i {
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+
+    .match-score {
+        background: rgba(104, 126, 234, 0.3);
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        color: white;
+    }
+
+    .note-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .view-btn, .download-btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .view-btn {
+        background: rgba(104, 126, 234, 0.3);
+        color: white;
+    }
+
+    .download-btn {
+        background: rgba(46, 213, 115, 0.3);
+        color: white;
+    }
+
+    .view-btn:hover, .download-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 3rem;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .no-results i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .home-btn {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        text-decoration: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        border: 1px solid var(--glass-border);
+    }
+
+    .home-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+        .search-form {
+            flex-direction: column;
+        }
+
+        .search-input, .filter-select {
+            width: 100%;
+        }
+
+        .sort-options {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .sort-option {
+            width: 100%;
+        }
+
+        .note-card {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .note-actions {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .page-header {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .home-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="search-container">
+    <div class="page-header">
+        <h1>Search Notes</h1>
+        <a href="{% url 'homepage' %}" class="home-btn">
+            <i class="fas fa-home"></i> Back to Home
+        </a>
+    </div>
     
-    <select name="department">
-        <option value="">All Departments</option>
-        <option value="CS" {% if selected_department == "CS" %}selected{% endif %}>Computer Science</option>
-        <option value="ME" {% if selected_department == "ME" %}selected{% endif %}>Mechanical Engineering</option>
-        <option value="EE" {% if selected_department == "EE" %}selected{% endif %}>Electrical Engineering</option>
-        <!-- Add more departments -->
-    </select>
+    <form method="get" action="{% url 'notes_feature:search_notes' %}" class="search-form" id="searchForm">
+        <div class="search-filters">
+            <input type="text" name="q" value="{{ query }}" placeholder="Search by title, subject, or tags..." class="search-input" id="searchInput">
+            
+            <select name="department" class="filter-select" id="departmentSelect">
+                <option value="">All Departments</option>
+                {% for dept_code, dept_name in departments %}
+                    <option value="{{ dept_code }}" {% if selected_dept == dept_code %}selected{% endif %}>{{ dept_name }}</option>
+                {% endfor %}
+            </select>
+            
+            <select name="semester" class="filter-select" id="semesterSelect">
+                <option value="">All Semesters</option>
+                {% for sem_code, sem_name in semesters %}
+                    <option value="{{ sem_code }}" {% if selected_sem == sem_code %}selected{% endif %}>{{ sem_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-    <select name="semester">
-        <option value="">All Semesters</option>
-        {% for i in semesters %}  <!-- ✅ Use 'semesters' from context -->
-            <option value="{{ i }}" {% if selected_semester == i|stringformat:"s" %}selected{% endif %}>
-                Semester {{ i }}
-            </option>
-        {% endfor %}
-    </select>
-    
+        <div class="sort-options">
+            <button type="button" class="sort-option {% if current_sort == 'latest' or not current_sort %}active{% endif %}" data-sort="latest">
+                <i class="fas fa-clock"></i>
+                <span>Latest First</span>
+            </button>
+            <button type="button" class="sort-option {% if current_sort == 'relevance' %}active{% endif %}" data-sort="relevance">
+                <i class="fas fa-star"></i>
+                <span>Most Relevant</span>
+            </button>
+        </div>
+        <input type="hidden" name="sort" id="sortInput" value="{{ current_sort|default:'latest' }}">
+    </form>
 
-    <button type="submit">Search</button>
-</form>
-
-<div id="results">
     {% if notes %}
-        <ul>
+        <div class="notes-grid">
             {% for note in notes %}
-                <li>
-                    <a href="{{ note.file.url }}" target="_blank">
-                        <strong>{{ note.title }}</strong>
-                    </a>
-                    – {{ note.subject }} (Sem {{ note.semester }}, {{ note.get_department_display }})
-                </li>
+                <div class="note-card">
+                    <div class="note-info">
+                        <div class="note-title">{{ note.title }}</div>
+                        <div class="note-meta">
+                            {% if current_sort == 'latest' %}
+                                <i class="fas fa-clock"></i>
+                                <span>Uploaded {{ note.uploaded_at|date:"d M Y" }}</span>
+                            {% elif current_sort == 'relevance' and query %}
+                                <span class="match-score">
+                                    <i class="fas fa-star"></i>
+                                    {{ note.match_score|floatformat:0 }}% Match
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="note-actions">
+                        <a href="{{ note.file.url }}" target="_blank" class="view-btn">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                        <a href="{{ note.file.url }}" class="download-btn" download>
+                            <i class="fas fa-download"></i> Download
+                        </a>
+                    </div>
+                </div>
             {% endfor %}
-        </ul>
+        </div>
     {% else %}
-        <p>No matching notes found.</p>
+        <div class="no-results">
+            <i class="fas fa-search"></i>
+            <p>No notes found matching your search criteria.</p>
+        </div>
     {% endif %}
 </div>
 
 <script>
-    const form = document.querySelector('form');
-    const resultsDiv = document.getElementById('results');
-
-    console.log("Form found:", form);
-    console.log("Results div found:", resultsDiv);
-    
-    const debounce = (func, delay) => {
-        let timeout;
-        return (...args) => {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(this, args), delay);
-        };
-    };
-
-    const fetchResults = () => {
-        console.log("fetchResults triggered");
-        const formData = new FormData(form);
-        const params = new URLSearchParams(formData).toString();
-        console.log("Fetching with params:", params);
-
-        fetch(`${form.action}?${params}`, {
-            headers: {
-                "X-Requested-With": "XMLHttpRequest"
-            }
-        })
-        .then(response => {
-            console.log("Response received:", response);
-            return response.json();
-        })
-        .then(data => {
-            console.log("Data received:", data);
-            resultsDiv.innerHTML = data.html;
-        })
-        .catch(error => console.error("Fetch error:", error));
-    };
-
-    const debouncedFetch = debounce(fetchResults, 300);
-
-    form.querySelectorAll('input, select').forEach(input => {
-        input.addEventListener('input', debouncedFetch);
-        input.addEventListener('change', debouncedFetch);
+    // Add event listeners for dynamic search
+    document.getElementById('searchInput').addEventListener('input', function() {
+        document.getElementById('searchForm').submit();
     });
 
-    form.addEventListener('submit', e => {
-        e.preventDefault();
-        console.log("Form submit prevented");
+    document.getElementById('departmentSelect').addEventListener('change', function() {
+        document.getElementById('searchForm').submit();
+    });
+
+    document.getElementById('semesterSelect').addEventListener('change', function() {
+        document.getElementById('searchForm').submit();
+    });
+
+    // Update sort buttons event listeners
+    document.querySelectorAll('.sort-option').forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            document.querySelectorAll('.sort-option').forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+            // Update hidden input and submit form
+            document.getElementById('sortInput').value = this.dataset.sort;
+            document.getElementById('searchForm').submit();
+        });
     });
 </script>
+{% endblock %}

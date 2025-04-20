@@ -1,98 +1,482 @@
 {% extends "base.html" %}
 {% load static %}
+
 {% block content %}
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Q&A Forum - NoteNook</title>
-    <link rel="stylesheet" href="{% static 'core/style.css' %}">
-    <link rel="stylesheet" href="{% static 'QnA_forum/list.css' %}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
-    <header class="text-center py-3">
-        <h1><i class="fas fa-comments"></i> Q&A Forum</h1>
-        <nav>
-            <ul>
-                <li><a href="{% url 'homepage' %}">Home</a></li>
-                <li><a href="{% url 'ask_question' %}" class="fta signup">Ask a Question</a></li>
-            </ul>
-        </nav>
-    </header>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-   <!-- Search and Filter Section -->
-<section class="search-container">
-    <div class="filter-box">
-        <h3><i class="fas fa-search"></i> Search by Subject</h3>
-        <form method="GET" class="filter-form">
-            <select name="subject" class="filter-dropdown">
-                <option value="">All Subjects</option>
-                {% for subject in subjects %}
-                    <option value="{{ subject.id }}" {% if selected_subject == subject.id|stringformat:"s" %}selected{% endif %}>
-                        {{ subject.name }}
-                    </option>
-                {% endfor %}
-            </select>
-            <button type="submit" class="btn-primary">Search</button>
-        </form>
+<style>
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.1);
+        --glass-border: rgba(255, 255, 255, 0.18);
+        --glass-shadow: rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        min-height: 100vh;
+        margin: 0;
+        padding: 2rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        line-height: 1.6;
+    }
+
+    .forum-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        background: var(--glass-bg);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px var(--glass-shadow);
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .home-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.8rem 1.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .home-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .home-btn i {
+        font-size: 1.1rem;
+    }
+
+    h2 {
+        color: white;
+        font-weight: 600;
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-container {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+    }
+
+    .search-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 30px;
+        padding: 10px 20px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 20px;
+        color: #666;
+        font-size: 16px;
+    }
+
+    .search-input {
+        width: 100%;
+        background: transparent;
+        border: none;
+        padding: 8px 8px 8px 40px;
+        font-size: 16px;
+        color: #333;
+        outline: none;
+    }
+
+    .search-input::placeholder {
+        color: #888;
+    }
+
+    .search-box:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .search-box:focus-within {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.4);
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-box:focus-within .search-icon {
+        color: #444;
+    }
+
+    .recent-subjects {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .subject-tag {
+        padding: 0.5rem 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        color: white;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .subject-tag:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .questions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .question-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .question-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .question-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .question-content {
+        margin-bottom: 1rem;
+    }
+
+    .question-content h3 {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .question-content a {
+        color: white;
+        text-decoration: none;
+    }
+
+    .subject-badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        background: rgba(104, 126, 234, 0.3);
+        border-radius: 20px;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    .question-meta {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 1rem;
+    }
+
+    .question-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        border: 1px solid var(--glass-border);
+    }
+
+    .question-actions .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: white;
+        text-decoration: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        flex: 1;
+        min-width: 120px;
+        max-width: 200px;
+    }
+
+    .btn-view {
+        background: rgba(104, 126, 234, 0.4);
+    }
+
+    .btn-primary {
+        background: rgba(46, 213, 115, 0.4);
+    }
+
+    .btn-delete {
+        background: rgba(255, 71, 87, 0.4);
+    }
+
+    .question-actions .btn:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.1);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-view:hover {
+        background: rgba(104, 126, 234, 0.5);
+    }
+
+    .btn-primary:hover {
+        background: rgba(46, 213, 115, 0.5);
+    }
+
+    .btn-delete:hover {
+        background: rgba(255, 71, 87, 0.5);
+    }
+
+    .pin-btn, .report-btn {
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        padding: 0.5rem;
+        transition: transform 0.3s ease;
+    }
+
+    .pin-btn:hover, .report-btn:hover {
+        transform: scale(1.1);
+    }
+
+    .pinned {
+        color: #ffd700;
+    }
+
+    .reported {
+        color: #dc3545;
+    }
+
+    .ask-btn {
+        padding: 0.8rem 1.5rem;
+        background: rgba(104, 126, 234, 0.3);
+        border-radius: 8px;
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .ask-btn:hover {
+        background: rgba(104, 126, 234, 0.4);
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+        body {
+            padding: 1rem;
+        }
+
+        .forum-container {
+            padding: 1rem;
+        }
+
+        .search-fields {
+            flex-direction: column;
+        }
+
+        .search-btn {
+            width: 100%;
+        }
+
+        .questions-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .question-actions {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .question-actions .btn {
+            width: 100%;
+            max-width: none;
+        }
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        transition: opacity 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .question-card {
+        animation: fadeIn 0.5s ease-out;
+    }
+</style>
+
+<div class="forum-container">
+    <div class="page-header">
+        <h2><i class="fas fa-comments"></i> Q&A Forum</h2>
+        <div class="header-actions">
+            <a href="{% url 'homepage' %}" class="home-btn">
+                <i class="fas fa-home"></i> Back to Home
+            </a>
+            <a href="{% url 'QnA_forum:ask_question' %}" class="ask-btn">
+                <i class="fas fa-plus"></i> Ask New Question
+            </a>
+        </div>
     </div>
-</section>
 
-    <!-- Question List Section -->
-    <section class="forum-container container">
-        <h2>All Questions</h2>
-        <div class="questions-grid">
-            {% for question in questions %}
-                <div class="question-card">
-                    <div class="question-header">
-                         <!-- Pin/Unpin Icon -->
-                    <a href="{% url 'toggle_pin_question' question.id %}" class="pin-icon">
-                        {% if request.user in question.pinned_by.all %}
-                            <i class="fas fa-thumbtack text-warning"></i> <!-- Pinned -->
-                        {% else %}
-                            <i class="far fa-bookmark text-muted"></i> <!-- Not pinned -->
-                        {% endif %}
-                    </a>
-                        <h3><a href="{% url 'question_detail' question.id %}">{{ question.content }}</a></h3>
-                        <a href="{% url 'toggle_report_question' question.id %}" 
-                        class="{% if request.user in question.reported_by.all %} text-muted {% else %} text-dark {% endif %}" 
-                        style="text-decoration: none;">
-                         <i class="fas fa-flag"></i> 
-                         {% if request.user in question.reported_by.all %}
-                             Reported
-                         {% else %}
-                             Report
-                         {% endif %}
-                     </a>
-                     
-                    
-                        <span class="subject-badge">{{ question.subject.name }}</span>
-                    </div>
-                    
-                    <p class="question-meta">Asked by: <span class="username">{{ question.user.username }}</span> on {{ question.created_at }}</p>
-                    
-                   
-
-                    <div class="question-actions">
-                        <a href="{% url 'question_detail' question.id %}" class="btn btn-secondary"><i class="fas fa-eye"></i> Answers</a>
-                        {% if request.user == question.user or request.user.is_superuser %}
-                            <a href="{% url 'edit_question' question.id %}" class="btn btn-edit"><i class="fas fa-edit"></i> Edit</a>
-                            <a href="{% url 'delete_question' question.id %}" class="btn btn-delete"><i class="fas fa-trash-alt"></i> Delete</a>
-                        {% endif %}
-                    </div>
-                </div>
-            {% empty %}
-                <p>No questions available. Be the first to ask!</p>
+    <div class="search-container">
+        <div class="search-box">
+            <i class="fas fa-search search-icon"></i>
+            <input 
+                type="text" 
+                class="search-input" 
+                id="searchInput"
+                placeholder="Search by subject or question content..."
+            >
+        </div>
+        <div class="recent-subjects">
+            {% for subject in recent_subjects %}
+                <span class="subject-tag" onclick="filterBySubject('{{ subject }}')">{{ subject }}</span>
             {% endfor %}
         </div>
-    </section>
+    </div>
 
+    <div class="questions-grid" id="questionsGrid">
+        {% for question in questions %}
+            <div class="question-card">
+                <div class="question-header">
+                    <a href="{% url 'QnA_forum:toggle_pin_question' question.id %}" class="pin-btn {% if request.user in question.pinned_by.all %}pinned{% endif %}">
+                        <i class="fas fa-thumbtack"></i>
+                    </a>
+                    <a href="{% url 'QnA_forum:toggle_report_question' question.id %}" class="report-btn {% if request.user in question.reported_by.all %}reported{% endif %}">
+                        <i class="fas fa-flag"></i>
+                    </a>
+                </div>
+
+                <div class="question-content">
+                    <h3><a href="{% url 'QnA_forum:question_detail' question.id %}">{{ question.content }}</a></h3>
+                    <span class="subject-badge">{{ question.subject }}</span>
+                </div>
+
+                <p class="question-meta">
+                    <i class="fas fa-user"></i> {{ question.user.username }}
+                    <br>
+                    <i class="fas fa-calendar"></i> {{ question.created_at|date:"d M Y" }}
+                </p>
+
+                <div class="question-actions">
+                    <a href="{% url 'QnA_forum:question_detail' question.id %}" class="btn btn-view">
+                        <i class="fas fa-eye"></i> View Answers
+                    </a>
+                    
+                    {% if request.user == question.user or request.user.is_superuser %}
+                    <a href="{% url 'QnA_forum:edit_question' question.id %}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Edit Question
+                    </a>
+                    <a href="{% url 'QnA_forum:delete_question' question.id %}" class="btn btn-delete" 
+                       onclick="return confirm('Are you sure you want to delete this question?');">
+                        <i class="fas fa-trash-alt"></i> Delete Question
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <div class="empty-state">
+                <p>No questions found. Be the first to ask!</p>
+                <a href="{% url 'QnA_forum:ask_question' %}" class="ask-btn">
+                    <i class="fas fa-plus"></i> Ask Your First Question
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+// Wait for the DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
     
+    // Add event listener for search input
+    searchInput.addEventListener('input', function() {
+        filterQuestions(this.value);
+    });
+});
+
+// Function to filter questions
+function filterQuestions(searchTerm) {
+    searchTerm = searchTerm.toLowerCase();
+    const questions = document.querySelectorAll('.question-card');
     
-    <footer>
-        <p>&copy; 2024 NoteNook. All rights reserved.</p>
-    </footer>
-</body>
-{% endblock%}
+    questions.forEach(function(question) {
+        const subject = question.querySelector('.subject-badge').textContent.toLowerCase();
+        const content = question.querySelector('.question-content h3 a').textContent.toLowerCase();
+        
+        // If search is empty or text matches, show the question
+        if (searchTerm === '' || subject.includes(searchTerm) || content.includes(searchTerm)) {
+            question.style.display = '';
+        } else {
+            question.style.display = 'none';
+        }
+    });
+}
+
+// Function to handle subject tag clicks
+function filterBySubject(subject) {
+    const searchInput = document.getElementById('searchInput');
+    searchInput.value = subject;
+    filterQuestions(subject);
+}
+</script>
+{% endblock %}

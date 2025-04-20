@@ -1,4 +1,6 @@
 import re
+import random
+import string
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -15,12 +17,19 @@ from django.views.decorators.csrf import csrf_exempt
 from  QnA_forum.models import Question 
 from notes_feature.models import Notes
 from django.contrib.auth import update_session_auth_hash# Assuming questions are stored here
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+import datetime
+from django.core.signing import BadSignature
+
 # Initialize the signer for generating tokens
 signer = Signer()
 
 # View for homepage
 def homepage(request):
-    return render(request, 'homepage.html')
+    # Get the latest 5 questions for the Q&A forum section
+    latest_questions = Question.objects.all().order_by('-created_at')[:5]
+    return render(request, 'homepage.html', {'latest_questions': latest_questions})
 
 # View for login
 def user_login(request):
@@ -42,7 +51,11 @@ def user_login(request):
                 messages.error(request, "Account does not exist. Please sign up.")
 
     email_verified = request.session.pop('email_verified', False)
-    return render(request, 'login.html', {'email_verified': email_verified})
+    random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+    return render(request, 'login.html', {
+        'email_verified': email_verified,
+        'random_string': random_string
+    })
 
 # View for email verification
 def verify_email(request):
@@ -191,14 +204,14 @@ def profile_view(request):
         context.update({
             "asked_questions": Question.objects.filter(user=user),
             "pinned_questions": Question.objects.filter(pinned_by=user),
-            "uploaded_notes": Notes.objects.filter(uploaded_by=user,status='approved'),  # Uncomment if Note model exists
-            "notes_pending_for_approval": Notes.objects.filter(uploaded_by=user, status='pending'),  # Uncomment if Note model exists
+            "uploaded_notes": Notes.objects.filter(uploaded_by=user, status='approved'),
+            "notes_pending_for_approval": Notes.objects.filter(uploaded_by=user).exclude(status='approved'),
         })
     elif profile.role == 'teacher':
         context.update({
             "pinned_questions": Question.objects.filter(pinned_by=user),
-            "uploaded_notes": Notes.objects.filter(uploaded_by=user),  # Uncomment if Note model exists
-            "notes_for_approval": Notes.objects.filter(status='pending'),  # Uncomment if Note model exists
+            "uploaded_notes": Notes.objects.filter(uploaded_by=user),
+            "notes_for_approval": Notes.objects.filter(status='pending'),
         })
 
     return render(request, "core/profile.html", context)
@@ -237,6 +250,99 @@ def change_password(request):
         else:
             return JsonResponse({"status": "error", "errors": form.errors})
     return JsonResponse({"status": "error", "message": "Invalid request."})
+
+# Password reset views
+def password_reset_request(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        try:
+            user = User.objects.get(email=email)
+            # Generate token with timestamp
+            timestamp = datetime.datetime.now().timestamp()
+            token_data = f"{user.pk}:{timestamp}"
+            token = signer.sign(token_data)
+            
+            # Create reset link
+            reset_link = request.build_absolute_uri(
+                reverse('password_reset_confirm') + f"?token={token}"
+            )
+            
+            # Create email context
+            context = {
+                'user': user,
+                'reset_link': reset_link,
+                'username': user.username,
+            }
+            
+            # Send email
+            html_message = render_to_string('core/password_reset_email.html', context)
+            plain_message = strip_tags(html_message)
+            
+            send_mail(
+                'Password Reset Request - NoteNook',
+                plain_message,
+                'notenookteam@gmail.com',
+                [email],
+                html_message=html_message,
+                fail_silently=False,
+            )
+            
+            messages.success(request, "Password reset instructions have been sent to your email.")
+            return redirect('password_reset_done')
+            
+        except User.DoesNotExist:
+            # Don't reveal if email exists
+            messages.success(request, "If an account exists with this email, you will receive password reset instructions.")
+            return redirect('password_reset_done')
+            
+    return render(request, 'core/password_reset.html')
+
+def password_reset_done(request):
+    return render(request, 'core/password_reset_done.html')
+
+def password_reset_confirm(request):
+    token = request.GET.get('token')
+    if not token:
+        messages.error(request, "Invalid password reset link.")
+        return redirect('password_reset')
+        
+    try:
+        # Verify token and extract user ID and timestamp
+        token_data = signer.unsign(token)
+        user_id, timestamp = token_data.split(':')
+        timestamp = float(timestamp)
+        
+        # Check if token is expired (24 hours)
+        if datetime.datetime.now().timestamp() - timestamp > 86400:
+            messages.error(request, "Password reset link has expired. Please request a new one.")
+            return redirect('password_reset')
+            
+        user = User.objects.get(id=int(user_id))
+        
+        if request.method == 'POST':
+            password = request.POST.get('new_password')
+            confirm_password = request.POST.get('confirm_password')
+            
+            if not password or not confirm_password:
+                messages.error(request, "Please fill in both password fields.")
+            elif password != confirm_password:
+                messages.error(request, "Passwords do not match.")
+            elif len(password) < 8:
+                messages.error(request, "Password must be at least 8 characters long.")
+            else:
+                user.set_password(password)
+                user.save()
+                messages.success(request, "Your password has been reset successfully!")
+                return redirect('password_reset_complete')
+                
+        return render(request, 'core/password_reset_confirm.html', {'token': token})
+        
+    except (BadSignature, ValueError, User.DoesNotExist):
+        messages.error(request, "Invalid or expired password reset link.")
+        return redirect('password_reset')
+
+def password_reset_complete(request):
+    return render(request, 'core/password_reset_complete.html')
 
 
 

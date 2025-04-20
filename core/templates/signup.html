@@ -7,7 +7,161 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signup - Notenook</title>
-    <link rel="stylesheet" href="{% static 'core/styless.css' %}">
+    <link rel="stylesheet" href="{% static 'core/styles.css' %}">
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Poppins', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .signup-container {
+            background: rgba(255,255,255,0.15);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            border: 1.5px solid rgba(255,255,255,0.25);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 3rem 3rem 2.5rem 3rem;
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 1rem auto 0.5rem auto;
+        }
+        .signup-container h2 {
+            color: #fff;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        }
+        .signup-container p {
+            color: #fff;
+            font-size: 1rem;
+            margin-bottom: 0.8rem;
+            text-align: center;
+        }
+        .messages {
+            width: 100%;
+            margin-bottom: 1.2rem;
+            border-radius: 10px;
+            padding: 0.8rem 1rem;
+            font-size: 1rem;
+            text-align: center;
+        }
+        .message.success {
+            background: rgba(102, 238, 174, 0.15);
+            color: #2ecc71;
+            border: 1px solid #2ecc71;
+        }
+        .message.error {
+            background: rgba(255, 0, 0, 0.08);
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+        .form-row {
+            display: flex;
+            gap: 2rem;
+            width: 100%;
+            margin-bottom: 1.2rem;
+        }
+        .input-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        .input-group label {
+            color: #fff;
+            font-size: 0.95rem;
+            margin-bottom: 0.3rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        .input-group input {
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            border: 1.5px solid rgba(255,255,255,0.25);
+            background: rgba(255,255,255,0.18);
+            color: #222;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border 0.2s;
+            width: 100%;
+        }
+        .input-group input:focus {
+            border: 1.5px solid #764ba2;
+            background: rgba(255,255,255,0.28);
+        }
+        .info-text {
+            color: #ffd700;
+            font-size: 0.9rem;
+            margin-top: 0.1rem;
+            margin-bottom: 0.1rem;
+        }
+        .error-text {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 0.1rem;
+            margin-bottom: 0.1rem;
+        }
+        .signup-btn {
+            width: 100%;
+            padding: 0.8rem 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+            cursor: pointer;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .signup-btn:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-2px) scale(1.03);
+        }
+        .login-link {
+            margin: 0.3rem 0 0.5rem 0;
+            color: #fff;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+        .login-link a {
+            color: #fff;
+            font-weight: 600;
+            text-decoration: underline;
+            transition: color 0.2s;
+        }
+        .login-link a:hover {
+            color: #ffd700;
+        }
+        footer {
+            color: #fff;
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        @media (max-width: 1200px) {
+            .signup-container {
+                padding: 1.5rem 1.5rem 1.2rem 1.5rem;
+                max-width: 98vw;
+            }
+            .form-row {
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -30,102 +184,112 @@
         <form action="{% url 'signup' %}" method="POST">
             {% csrf_token %}
 
-            <!-- Full Name -->
-            <div class="input-group">
-                <label for="first_name">First Name</label>
-                <input 
-                    type="text" 
-                    id="first_name_name" 
-                    name="first_name" 
-                    placeholder="Enter your first name" 
-                    value="{{ request.POST.first_name|default:'' }}" 
-                    required
-                    aria-describedby="irst_name_error"
-                >
-                {% if form.first_name.errors %}
-                    <p id="first_name_error" class="error-text">{{ form.first_name.errors.0 }}</p>
-                {% endif %}
-            </div>
-            <div class="input-group">
-                <label for="last_name">Last Name</label>
-                <input 
-                    type="text" 
-                    id="last_name_name" 
-                    name="last_name" 
-                    placeholder="Enter your  Surname" 
-                    value="{{ request.POST.last_name|default:'' }}" 
-                    required
-                    aria-describedby="last_name_error"
-                >
-                {% if form.last_name.errors %}
-                    <p id="last_name_error" class="error-text">{{ form.last_name.errors.0 }}</p>
-                {% endif %}
-            </div>
-            <!-- Username -->
-            <div class="input-group">
-                <label for="username">Username</label>
-                <input 
-                    type="text" 
-                    id="username" 
-                    name="username" 
-                    placeholder="Choose a username" 
-                    value="{{ request.POST.username|default:'' }}" 
-                    required
-                    aria-describedby="username_error"
-                >
-                {% if form.username.errors %}
-                    <p id="username_error" class="error-text">{{ form.username.errors.0 }}</p>
-                {% endif %}
+            <div class="form-row">
+                <!-- Full Name -->
+                <div class="input-group">
+                    <label for="first_name">First Name</label>
+                    <input 
+                        type="text" 
+                        id="first_name_name" 
+                        name="first_name" 
+                        placeholder="Enter your first name" 
+                        value="{{ request.POST.first_name|default:'' }}" 
+                        required
+                        aria-describedby="irst_name_error"
+                    >
+                    {% if form.first_name.errors %}
+                        <p id="first_name_error" class="error-text">{{ form.first_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div class="input-group">
+                    <label for="last_name">Last Name</label>
+                    <input 
+                        type="text" 
+                        id="last_name_name" 
+                        name="last_name" 
+                        placeholder="Enter your  Surname" 
+                        value="{{ request.POST.last_name|default:'' }}" 
+                        required
+                        aria-describedby="last_name_error"
+                    >
+                    {% if form.last_name.errors %}
+                        <p id="last_name_error" class="error-text">{{ form.last_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
             </div>
 
-            <!-- Email Address -->
-            <div class="input-group">
-                <label for="email">Email Address</label>
-                <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    placeholder="Enter your college email" 
-                    value="{{ request.POST.email|default:'' }}" 
-                    required
-                    aria-describedby="email_error"
-                >
-                <small class="info-text">Use your college email.</small>
-                {% if form.email.errors %}
-                    <p id="email_error" class="error-text">{{ form.email.errors.0 }}</p>
-                {% endif %}
+            <div class="form-row">
+                <!-- Username -->
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        placeholder="Choose a username" 
+                        value="{{ request.POST.username|default:'' }}" 
+                        required
+                        aria-describedby="username_error"
+                        autocomplete="off"
+                    >
+                    {% if form.username.errors %}
+                        <p id="username_error" class="error-text">{{ form.username.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Email Address -->
+                <div class="input-group">
+                    <label for="email">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        placeholder="Enter your college email" 
+                        value="{{ request.POST.email|default:'' }}" 
+                        required
+                        aria-describedby="email_error"
+                    >
+                    <small class="info-text">Use your college email.</small>
+                    {% if form.email.errors %}
+                        <p id="email_error" class="error-text">{{ form.email.errors.0 }}</p>
+                    {% endif %}
+                </div>
             </div>
 
-            <!-- Password -->
-            <div class="input-group">
-                <label for="password">Password</label>
-                <input 
-                    type="password" 
-                    id="password" 
-                    name="password" 
-                    placeholder="Enter your password" 
-                    required
-                    aria-describedby="password_error"
-                >
-                {% if form.password.errors %}
-                    <p id="password_error" class="error-text">{{ form.password.errors.0 }}</p>
-                {% endif %}
-            </div>
+            <div class="form-row">
+                <!-- Password -->
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Enter your password" 
+                        required
+                        aria-describedby="password_error"
+                        autocomplete="new-password"
+                    >
+                    {% if form.password.errors %}
+                        <p id="password_error" class="error-text">{{ form.password.errors.0 }}</p>
+                    {% endif %}
+                </div>
 
-            <!-- Confirm Password -->
-            <div class="input-group">
-                <label for="password_confirm">Confirm Password</label>
-                <input 
-                    type="password" 
-                    id="password_confirm" 
-                    name="password_confirm" 
-                    placeholder="Confirm your password" 
-                    required
-                    aria-describedby="password_confirm_error"
-                >
-                {% if form.password_confirm.errors %}
-                    <p id="password_confirm_error" class="error-text">{{ form.password_confirm.errors.0 }}</p>
-                {% endif %}
+                <!-- Confirm Password -->
+                <div class="input-group">
+                    <label for="password_confirm">Confirm Password</label>
+                    <input 
+                        type="password" 
+                        id="password_confirm" 
+                        name="password_confirm" 
+                        placeholder="Confirm your password" 
+                        required
+                        aria-describedby="password_confirm_error"
+                        autocomplete="new-password"
+                    >
+                    {% if form.password_confirm.errors %}
+                        <p id="password_confirm_error" class="error-text">{{ form.password_confirm.errors.0 }}</p>
+                    {% endif %}
+                </div>
             </div>
 
             <!-- Submit Button -->
@@ -134,7 +298,7 @@
 
         <!-- Already have an account? Login link -->
         <div class="login-link">
-            <p>Already have an account? <a href="{% url 'login' %}" class="cta-login">Login</a></p>
+            <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
         </div>
     </div>
 

@@ -1,6 +1,8 @@
 from django.urls import path
 from .views import *
 
+app_name = 'QnA_forum'  # Add this line to namespace the URLs
+
 urlpatterns = [
     path('', question_list, name='question_list'),  # Show all questions
     path('ask/', ask_question, name='ask_question'),  # Ask a new question
@@ -12,7 +14,7 @@ urlpatterns = [
     path('answer/<int:answer_id>/delete/', delete_answer, name='delete_answer'),  # ✅ Add this
     path('toggle-report/<int:question_id>/', toggle_report_question, name='toggle_report_question'),
     path('question/<int:question_id>/pin/', toggle_pin_question, name='toggle_pin_question'),
-
+    path('answer/<int:answer_id>/edit/', edit_answer, name='edit_answer'),
 ]
 
 

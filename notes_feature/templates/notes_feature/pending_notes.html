@@ -19,7 +19,7 @@
         <td>{{ note.uploaded_by.username }}</td>
         <td><a href="{{ note.file.url }}" target="_blank">📄 View File</a></td>
         <td>
-            <form method="POST" action="{% url 'approve_note' note.id %}">
+            <form method="POST" action="{% url 'notes_feature:approve_note' note.id %}">
                 {% csrf_token %}
                 <button type="submit">✅ Approve</button>
             </form>

@@ -6,6 +6,148 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="{% static 'core/styles.css' %}">
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Poppins', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-container {
+            min-height: 100vh;
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.15);
+            backdrop-filter: blur(2px);
+        }
+        .login-form {
+            background: rgba(255,255,255,0.15);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            border: 1.5px solid rgba(255,255,255,0.25);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 2.5rem 2.5rem 2rem 2.5rem;
+            width: 100%;
+            max-width: 370px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .login-form h2 {
+            color: #fff;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        }
+        .success-message, .error-messages {
+            width: 100%;
+            margin-bottom: 1.2rem;
+            border-radius: 10px;
+            padding: 0.8rem 1rem;
+            font-size: 1rem;
+            text-align: center;
+        }
+        .success-message {
+            background: rgba(102, 238, 174, 0.15);
+            color: #2ecc71;
+            border: 1px solid #2ecc71;
+        }
+        .error-messages {
+            background: rgba(255, 0, 0, 0.08);
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+        .input-group {
+            width: 100%;
+            margin-bottom: 1.2rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .input-group label {
+            color: #fff;
+            font-size: 1rem;
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        .input-group input {
+            padding: 0.7rem 1rem;
+            border-radius: 8px;
+            border: 1.5px solid rgba(255,255,255,0.25);
+            background: rgba(255,255,255,0.18);
+            color: #222;
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.2s;
+        }
+        .input-group input:focus {
+            border: 1.5px solid #764ba2;
+            background: rgba(255,255,255,0.28);
+        }
+        .login-btn {
+            width: 100%;
+            padding: 0.9rem 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+            cursor: pointer;
+            margin-top: 0.5rem;
+            margin-bottom: 1.2rem;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .login-btn:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-2px) scale(1.03);
+        }
+        .signup-link {
+            margin-top: 0.5rem;
+            color: #fff;
+            font-size: 1rem;
+        }
+        .signup-link a.cta-signup {
+            color: #fff;
+            font-weight: 600;
+            text-decoration: underline;
+            transition: color 0.2s;
+        }
+        .signup-link a.cta-signup:hover {
+            color: #ffd700;
+        }
+        @media (max-width: 500px) {
+            .login-form {
+                padding: 1.5rem 0.7rem 1.2rem 0.7rem;
+                max-width: 98vw;
+            }
+        }
+        /* Forgot Password Link Styles */
+        .forgot-password {
+            color: #ffd700;
+            font-size: 0.95rem;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+            display: block;
+            text-align: right;
+            margin-bottom: 1.2rem;
+        }
+        .forgot-password:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
     <div class="login-container">
@@ -29,22 +171,63 @@
             </div>
             {% endif %}
 
-            <form action="" method="POST">
+            <form action="" method="POST" autocomplete="off">
                 {% csrf_token %}
+                <!-- Chrome autofill prevention -->
+                <input style="display:none" type="text" name="fakeusernameremembered"/>
+                <input style="display:none" type="password" name="fakepasswordremembered"/>
+
                 <div class="input-group">
                     <label for="username">Username</label>
-                    <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        placeholder="Enter your username" 
+                        value="{{ request.POST.username|default:'' }}" 
+                        required
+                        aria-describedby="username_error"
+                        autocomplete="nope"
+                    >
                 </div>
-                <div class="input-group">
+                <div class="input-group" style="position:relative;">
                     <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Enter your password" 
+                        required
+                        aria-describedby="password_error"
+                        autocomplete="new-password"
+                    >
+                    <span id="togglePassword" style="position:absolute; right:12px; top:38px; cursor:pointer; color:#764ba2; font-size:1.2rem;">
+                        <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.12 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.133 13.133 0 0 1 1.172 8z"/>
+                            <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zm0 1a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"/>
+                        </svg>
+                    </span>
                 </div>
-                <button type="submit" class="login-btn">Log In</button>
+                <a href="{% url 'password_reset' %}" class="forgot-password">Forgot password?</a>
+                <button type="submit" class="login-btn">Login</button>
                 <div class="signup-link">
-                    <p>Don't have an account? <a href="{% url 'signup' %}" class="cta-signup">Sign Up</a></p>
+                    <p>Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
                 </div>
             </form>
         </div>
     </div>
 </body>
+<script>
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    const eyeIcon = document.getElementById('eyeIcon');
+    let passwordVisible = false;
+    togglePassword.addEventListener('click', function() {
+        passwordVisible = !passwordVisible;
+        passwordInput.type = passwordVisible ? 'text' : 'password';
+        eyeIcon.innerHTML = passwordVisible
+            ? `<path d="M13.359 11.238l1.387 1.387a.75.75 0 1 1-1.06 1.06l-1.387-1.386A7.03 7.03 0 0 1 8 13.5c-5 0-8-5.5-8-5.5a15.634 15.634 0 0 1 2.746-3.592l-1.387-1.387a.75.75 0 1 1 1.06-1.06l1.387 1.386A7.03 7.03 0 0 1 8 2.5c5 0 8 5.5 8 5.5a15.634 15.634 0 0 1-2.746 3.592zM8 4.5c-2.12 0-3.879 1.168-5.168 2.457A13.133 13.133 0 0 0 1.172 8c.058.087.122.183.195.288.335.48.83 1.12 1.465 1.755C4.121 11.332 5.88 12.5 8 12.5c2.12 0 3.879-1.168 5.168-2.457A13.133 13.133 0 0 0 14.828 8a13.133 13.133 0 0 0-1.66-2.043C11.88 4.668 10.12 3.5 8 3.5z"/><path d="M8 6.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"/>`
+            : `<path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.12 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.133 13.133 0 0 1 1.172 8z"/><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zm0 1a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"/>`;
+    });
+</script>
 </html>
