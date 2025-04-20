@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-ctk%o3*e-6au%#&83t83*za5gb8vg5fz5#q$2e$thp0$fr%d44
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['web-production-a5059.up.railway.app',
+ALLOWED_HOSTS = [,
     'localhost']
 
 
@@ -174,9 +174,9 @@ import os
 CSRF_COOKIE_SECURE = True  # Set to True in production
 CSRF_COOKIE_HTTPONLY = True
 CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000',
-    'https://web-production-a5059.up.railway.app',
+    
 ]
 
 
 # Google Docs Viewer settings
-SITE_URL = 'https://web-production-a5059.up.railway.app'   # Change this to your actual domain in production
+SITE_URL = 'http://127.0.0.1:8000'   # Change this to your actual domain in production
