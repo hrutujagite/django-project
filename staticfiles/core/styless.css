@@ -1,0 +1,209 @@
+/* Basic Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #ff79c6, #50a7f0); /* Pink to Blue gradient */
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Header Styles */
+header {
+    width: 100%;
+    background-color: #ff79c6; /* Pink header */
+    padding: 15px;
+    color: white;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+}
+
+header .logo {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+header .login-link {
+    text-decoration: none;
+    color: white;
+}
+
+/* Signup Container */
+.signup-container {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    width: 400px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    color: #333;
+    /* Added responsive width */
+    max-width: 90%;
+}
+
+/* Heading and Description */
+.signup-container h2 {
+    font-size: 28px;
+    color: #50a7f0; /* Blue */
+    margin-bottom: 10px;
+}
+
+.signup-container p {
+    color: #ff79c6; /* Pink */
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+/* Input Groups */
+.input-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    color: #333;
+    background-color: #f8f8f8;
+    transition: border-color 0.3s ease;
+}
+
+/* Focus State */
+.input-group input:focus {
+    border-color: #50a7f0; /* Blue focus */
+    outline: none;
+    background-color: #ffffff;
+}
+
+/* Error and Success Messages */
+.messages {
+    margin-top: 20px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.messages .error-text {
+    color: #ff4d4d; /* Bright red for errors */
+    background-color: #ffe6e6; /* Light red background */
+    border: 1px solid #ff9999;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.messages .success-text {
+    color: #4caf50; /* Green for success */
+    background-color: #e6ffe6; /* Light green background */
+    border: 1px solid #99ff99;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+/* Information Text */
+.info-text {
+    font-size: 12px;
+    color: #888;
+}
+
+/* Signup Button */
+.signup-btn {
+    background-color: #50a7f0; /* Blue */
+    color: white;
+    padding: 12px 0;
+    width: 100%;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.signup-btn:hover {
+    background-color: #4078c0; /* Darker blue */
+}
+
+/* Login Link */
+.login-link {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.login-link a {
+    text-decoration: none;
+    color: #50a7f0; /* Blue */
+    font-weight: bold;
+}
+
+.login-link a:hover {
+    color: #4078c0; /* Darker blue */
+}
+
+/* Footer */
+footer {
+    background-color: #ff79c6; /* Pink footer */
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+    position: fixed;
+    bottom: 0;
+    color: white;
+    font-size: 14px;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .signup-container {
+        width: 90%; /* Full width with padding */
+        padding: 20px;
+    }
+
+    header {
+        font-size: 16px;
+    }
+
+    .signup-container h2 {
+        font-size: 24px;
+    }
+
+    .signup-btn {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        font-size: 14px;
+    }
+
+    .signup-container h2 {
+        font-size: 22px;
+    }
+
+    .input-group input {
+        padding: 10px;
+        font-size: 12px;
+    }
+}

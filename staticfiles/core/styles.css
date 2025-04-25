@@ -1,0 +1,143 @@
+/* General styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    background: linear-gradient(135deg, #ff66b2, #66b3ff); /* Pink and Blue Gradient */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Login container */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+/* Login form styles */
+.login-form {
+    background-color: white;
+    padding: 40px 50px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.login-form h2 {
+    margin-bottom: 20px;
+    font-size: 2em;
+    color: #ff66b2; /* Pink text for the header */
+}
+
+/* Success message styles */
+.success-message {
+    background-color: #d4edda; /* Light green background */
+    color: #155724; /* Dark green text */
+    border: 1px solid #c3e6cb; /* Green border */
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1em;
+}
+
+/* Error message styles */
+.error-message {
+    background-color: #f8d7da; /* Light red background */
+    color: #721c24; /* Dark red text */
+    border: 1px solid #f5c6cb; /* Red border */
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1em;
+}
+
+/* Input fields */
+.input-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.input-group label {
+    font-size: 0.9em;
+    color: #333;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    margin-top: 5px;
+    transition: 0.3s;
+}
+
+.input-group input:focus {
+    border-color: #66b3ff; /* Blue focus border */
+    outline: none;
+}
+
+/* Button styles */
+.login-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #66b3ff; /* Blue button */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.login-btn:hover {
+    background-color: #ff66b2; /* Pink hover effect */
+}
+
+/* Sign up link */
+.signup-link {
+    margin-top: 20px;
+}
+
+.signup-link a {
+    color: #66b3ff; /* Blue link color */
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.signup-link a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive styles */
+@media (max-width: 600px) {
+    .login-form {
+        padding: 20px 30px;
+        width: 90%;
+    }
+
+    .login-form h2 {
+        font-size: 1.5em;
+    }
+
+    .input-group input {
+        font-size: 0.9em;
+    }
+
+    .login-btn {
+        font-size: 1em;
+        padding: 8px;
+    }
+}
