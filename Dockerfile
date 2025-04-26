@@ -32,8 +32,12 @@ RUN pip install -r requirements.txt
 # Copy project
 COPY . .
 
-# Collect static files
-RUN python manage.py collectstatic --noinput
+# Make entrypoint.sh executable
+RUN chmod +x /app/entrypoint.sh
+
+# Set the entrypoint to the custom script
+ENTRYPOINT ["/app/entrypoint.sh"]
+
 
 # Run gunicorn
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "notes_app.wsgi:application"]
