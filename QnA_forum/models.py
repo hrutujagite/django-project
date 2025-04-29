@@ -14,8 +14,8 @@ class Subject(models.Model):
 
 class Question(models.Model):
     """Model to store questions posted by users"""
-    content = models.TextField()  # ✅ Single field for asking question
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)  # Link to Subject model
+    content = models.TextField()  
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)  
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # User who asked the question
     created_at = models.DateTimeField(auto_now_add=True)
     pinned_by = models.ManyToManyField(User, related_name="pinned_questions", blank=True)
