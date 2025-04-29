@@ -36,4 +36,4 @@ COPY . .
 RUN python manage.py collectstatic --noinput
 
 # Run gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "notes_app.wsgi:application"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
