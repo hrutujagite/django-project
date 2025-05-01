@@ -26,6 +26,7 @@ class Notes(models.Model):
     SEMESTER_CHOICES = [(i, f"Semester {i}") for i in range(1, 9)]
 
     # Core fields
+    
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True, help_text="Enter a description of your notes (optional)")
     department = models.CharField(max_length=50, choices=DEPARTMENT_CHOICES)
