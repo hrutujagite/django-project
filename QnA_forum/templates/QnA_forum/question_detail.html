@@ -677,17 +677,24 @@
     {% endif %}
 </div>
 
+<div class="answer-content">
+    <!-- Display the text answer with line breaks -->
+    {{ answer.content|linebreaks }}
 
-                <div class="answer-content">
-                    {{ answer.content|linebreaks }}
-                    {% if answer.images.all %}
-                        <div class="answer-images">
-                            {% for image in answer.images.all %}
-                                <img src="{{ image.image.url }}" alt="Answer image" class="answer-image">
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
+    <!-- Check if the answer has images -->
+    {% if answer.images.exists %}
+        <div class="answer-images">
+            {% for image in answer.images.all %}
+                <!-- Display clickable links to images -->
+                <a href="{{ image.image_url }}" target="_blank">
+                    View Image
+                </a><br>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+
                 
                 <!-- Answer Metadata -->
                 <div class="answer-meta">

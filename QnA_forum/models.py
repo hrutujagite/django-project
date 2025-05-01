@@ -86,12 +86,13 @@ class Answer(models.Model):
 
 
 class AnswerImage(models.Model):
-    """Model to store multiple images linked to an answer"""
+    """Model to store Google Drive image links for an answer"""
     answer = models.ForeignKey(Answer, related_name="images", on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='answer_images/')  # Store images in 'media/answer_images/'
+    image_url = models.URLField(null=True,blank=True)  # Only stores the Google Drive URL
 
     def __str__(self):
         return f"Image for Answer {self.answer.id}"
+
 
 
 class Vote(models.Model):

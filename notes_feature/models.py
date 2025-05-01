@@ -37,6 +37,8 @@ class Notes(models.Model):
         help_text="Enter comma-separated tags (e.g., calculus, integration)"
     )
     file = models.FileField(upload_to='notes/')
+    drive_url = models.URLField(blank=True, null=True, help_text="Link to the uploaded file on Google Drive")
+
     uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notes")
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=STATUS_PENDING)
     uploaded_at = models.DateTimeField(auto_now_add=True)

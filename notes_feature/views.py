@@ -15,6 +15,22 @@ from django.utils.http import quote as urlquote
 import os
 from mimetypes import guess_type
 from QnA_forum.models import Question  # Add this import
+import io
+from django.conf import settings
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseUpload
+
+
+# Google Drive setup
+SERVICE_ACCOUNT_FILE = os.path.join(settings.BASE_DIR, 'credentials', 'notenook key imp.json')
+FOLDER_ID = '1sR0i7uqeR7n9n-dH2BLTkWYAAP3diGEQ'  
+SCOPES = ['https://www.googleapis.com/auth/drive']
+
+credentials = service_account.Credentials.from_service_account_file(
+    SERVICE_ACCOUNT_FILE, scopes=SCOPES
+)
+drive_service = build('drive', 'v3', credentials=credentials)
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +45,35 @@ def upload_notes(request):
             note = form.save(commit=False)
             note.uploaded_by = request.user
 
+            # ✅ Upload to Google Drive
+            uploaded_file = request.FILES['file']
+            filename = uploaded_file.name
+            mimetype = uploaded_file.content_type
+
+            file_stream = io.BytesIO(uploaded_file.read())
+
+            file_metadata = {
+                'name': filename,
+                'parents': [FOLDER_ID],
+            }
+            media = MediaIoBaseUpload(file_stream, mimetype=mimetype)
+
+            uploaded = drive_service.files().create(
+                body=file_metadata,
+                media_body=media,
+                fields='id, webViewLink'
+            ).execute()
+            drive_service.permissions().create(
+    fileId=uploaded['id'],
+    body={
+        'type': 'anyone',       # ← Allows anyone with the link
+        'role': 'reader'        # ← Read-only permission
+    }
+).execute()
+
+            drive_link = uploaded.get('webViewLink')
+            note.drive_url = drive_link  # assumes you have a field in your model called `drive_url`
+
             # ✅ Set status based on user role
             if hasattr(request.user, 'profile') and request.user.profile.role == 'teacher':
                 note.status = 'approved'
@@ -38,7 +83,7 @@ def upload_notes(request):
                 messages.success(request, "Note uploaded successfully and is pending approval.")
 
             note.save()
-            # Stay on the upload page and show the message
+
             return render(request, "notes_feature/upload_notes.html", {
                 'form': NotesUploadForm(),
                 'departments': NotesUploadForm.DEPARTMENT_CHOICES,
@@ -49,14 +94,12 @@ def upload_notes(request):
     else:
         form = NotesUploadForm()
 
-    # Pass the choices to the template context
     context = {
         'form': form,
         'departments': NotesUploadForm.DEPARTMENT_CHOICES,
         'semesters': NotesUploadForm.SEMESTER_CHOICES,
     }
     return render(request, "notes_feature/upload_notes.html", context)
-
 
 @login_required
 def approve_note(request, note_id):
@@ -182,31 +225,34 @@ def note_detail(request, note_id):
 @login_required
 def view_file(request, note_id):
     note = get_object_or_404(Notes, id=note_id)
+
+    # Restrict access for unapproved notes
     if note.status != 'approved' and not (request.user == note.uploaded_by or is_teacher_or_admin(request.user)):
         return HttpResponseForbidden("❌ You are not allowed to view this note.")
 
+    # If stored on Google Drive and note has a preview URL
+    if note.drive_url:  # Assuming you saved it during upload
+        # Example format: https://drive.google.com/file/d/<file_id>/preview
+        return redirect(note.drive_url)
+
+    # If stored locally
     file_path = note.file.path
     content_type, _ = guess_type(file_path)
-    
+
     if not content_type:
         content_type = 'application/octet-stream'
-    
-    # For PDFs, serve with inline disposition
-    if file_path.lower().endswith('.pdf'):
+
+    # Serve PDF or image inline
+    if file_path.lower().endswith(('.pdf', '.jpg', '.jpeg', '.png', '.gif', '.bmp')):
         response = FileResponse(open(file_path, 'rb'), content_type=content_type)
         response['Content-Disposition'] = f'inline; filename="{urlquote(os.path.basename(file_path))}"'
         return response
-    
-    # For images, serve with inline disposition
-    elif file_path.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp')):
-        response = FileResponse(open(file_path, 'rb'), content_type=content_type)
-        response['Content-Disposition'] = f'inline; filename="{urlquote(os.path.basename(file_path))}"'
-        return response
-    
-    # For other files, serve as download
+
+    # For all other files, serve as attachment
     response = FileResponse(open(file_path, 'rb'), content_type=content_type)
     response['Content-Disposition'] = f'attachment; filename="{urlquote(os.path.basename(file_path))}"'
     return response
+
 
 @login_required
 def delete_note(request, note_id):

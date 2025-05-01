@@ -24,16 +24,16 @@ RUN apt-get update \
         cmake \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+# Copy and install Python dependencies
 COPY requirements.txt .
 RUN pip install --upgrade pip setuptools wheel
 RUN pip install -r requirements.txt
 
-# Copy project
+# Copy the project files
 COPY . .
 
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
-# Run gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "notes_app.wsgi:application"]
+# Run Gunicorn
+CMD ["gunicorn", "--workers", "3", "--bind", "0.0.0.0:8000", "notes_app.wsgi:application"]

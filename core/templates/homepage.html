@@ -176,7 +176,7 @@
         align-items: center;
         text-align: center;
         padding: 2rem;
-        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('{% static "images/bg.jpg" %}');
+        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('{% static "bg.jpg" %}');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
@@ -484,18 +484,7 @@
         margin-bottom: 0;
     }
 
-    .about-image {
-        border-radius: 12px;
-        overflow: hidden;
-        height: 100%;
-        min-height: 200px;
-        background-image: url('{% static "images/about.jpg" %}');
-        background-size: cover;
-        background-position: center;
-        position: relative;
-        max-width: 700px;
-        margin: 0 auto;
-    }
+   
 
     .about-image::after {
         content: '';
@@ -893,7 +882,7 @@
     <h1>Key Features</h1>
     <div class="slideshow-container">
         <div class="slide">
-            <div class="feature-slide" style="background-image: url('{% static 'images/upload.jpg' %}');">
+            <div class="feature-slide" style="background-image: url('{% static 'upload.jpg' %}');">
                 <div class="feature-content">
                     <h2>Upload and Search Notes</h2>
                     <p>Share your notes easily with your classmates.</p>
@@ -901,7 +890,7 @@
             </div>
         </div>
         <div class="slide">
-            <div class="feature-slide" style="background-image: url('{% static 'images/discuss_forum.jpg' %}');">
+            <div class="feature-slide" style="background-image: url('{% static 'discuss_forum.jpg' %}');">
                 <div class="feature-content">
                     <h2>Q&A Forum</h2>
                     <p>Engage in topic-based Q&A sessions.</p>
@@ -909,7 +898,7 @@
             </div>
         </div>
         <div class="slide">
-            <div class="feature-slide" style="background-image: url('{% static 'images/secure_access.jpg' %}');">
+            <div class="feature-slide" style="background-image: url('{% static 'secure_access.jpg' %}');">
                 <div class="feature-content">
                     <h2>Secure Access of Notes</h2>
                     <p>Only verified users can access content.</p>
@@ -936,7 +925,6 @@
     
             <p>Join Notenook today and make learning easier than ever!</p>
         </div>
-        <div class="about-image"></div>
     </div>
 </section>
 
