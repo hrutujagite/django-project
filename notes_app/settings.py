@@ -12,8 +12,13 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os, certifi
 os.environ['SSL_CERT_FILE'] = certifi.where()
 from pathlib import Path
+from dotenv import load_dotenv
 
+load_dotenv()
 
+SERVICE_ACCOUNT_FILE = os.getenv('GOOGLE_SERVICE_ACCOUNT_FILE')
+FOLDER_ID = os.getenv('GOOGLE_DRIVE_FOLDER_ID')
+SCOPES = ['https://www.googleapis.com/auth/drive']
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

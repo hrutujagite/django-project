@@ -10,9 +10,11 @@ from google.oauth2 import service_account
 from django.conf import settings
 import os
 
-SCOPES = ['https://www.googleapis.com/auth/drive.file']
-SERVICE_ACCOUNT_FILE = os.path.join(settings.BASE_DIR, 'credentials', 'notenook key imp.json')
-QNA_IMAGE_FOLDER_ID = '12anZN9PHDOgSQG8wHM9Mn9UQ9jENWGMZ' 
+SERVICE_ACCOUNT_FILE = os.getenv('GOOGLE_SERVICE_ACCOUNT_FILE')
+QNA_IMAGE_FOLDER_ID = os.getenv('QNA_IMAGE_FOLDER_ID')
+SCOPES = ['https://www.googleapis.com/auth/drive']
+
+ 
 
 def get_drive_service():
     creds = service_account.Credentials.from_service_account_file(
