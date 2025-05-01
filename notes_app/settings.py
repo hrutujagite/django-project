@@ -176,7 +176,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'notenookteam@gmail.com'  # Replace with your email
-EMAIL_HOST_PASSWORD = 'werv vbgb qfeo zcii'  # Replace with your email password
+EMAIL_HOST_PASSWORD = 'awqk tcgm pfdb yvaw'  # Replace with your email password
 DEFAULT_FROM_EMAIL = 'notenookteam@gmail.com'  # Same email as above
 
 import os
