@@ -1,26 +1,44 @@
-# Python
+# Python bytecode and cache
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Django
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-media/
+# Environment variables
+.env
 
-# Virtual Environment
+# Django-specific folders
+/media/
+staticfiles/
+
+# Credentials or secrets
+/credentials/
+
+# Logs and runtime files
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+
+# Local database
+db.sqlite3
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code and PyCharm (IDE) settings
+.vscode/
+.idea/
+
+# Virtual environment
 venv/
 env/
 ENV/
+.venv/
 
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
+# Docker-related (optional if using build-specific ignores)
+*.dockerfile
 
-# OS
-.DS_Store
-Thumbs.db 
+# Gitignore itself
+!.gitignore
