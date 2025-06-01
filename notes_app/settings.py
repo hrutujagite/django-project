@@ -9,8 +9,16 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import os, certifi
+os.environ['SSL_CERT_FILE'] = certifi.where()
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
+
+SERVICE_ACCOUNT_FILE = os.getenv('GOOGLE_SERVICE_ACCOUNT_FILE')
+FOLDER_ID = os.getenv('GOOGLE_DRIVE_FOLDER_ID')
+SCOPES = ['https://www.googleapis.com/auth/drive']
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,9 +31,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-ctk%o3*e-6au%#&83t83*za5gb8vg5fz5#q$2e$thp0$fr%d44'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [    'localhost','127.0.0.1' ,'django-project-production-053c.up.railway.app',
+]
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Application definition
@@ -43,6 +53,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -51,6 +62,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 ROOT_URLCONF = 'notes_app.urls'
 
@@ -127,11 +139,11 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
+import os 
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-# Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -164,15 +176,19 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'notenookteam@gmail.com'  # Replace with your email
-EMAIL_HOST_PASSWORD = 'werv vbgb qfeo zcii'  # Replace with your email password
+EMAIL_HOST_PASSWORD = 'awqk tcgm pfdb yvaw'  # Replace with your email password
 DEFAULT_FROM_EMAIL = 'notenookteam@gmail.com'  # Same email as above
 
 import os
 
 # CSRF Settings
-CSRF_COOKIE_SECURE = False  # Set to True in production
-CSRF_COOKIE_HTTPONLY = False
-CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000']
+CSRF_COOKIE_SECURE = True # Set to True in production
+CSRF_COOKIE_HTTPONLY = True
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000',
+    'https://django-project-production-053c.up.railway.app'
+]
+
 
 # Google Docs Viewer settings
-SITE_URL = 'http://127.0.0.1:8000'  # Change this to your actual domain in production
+SITE_URL = 'https://django-project-production-053c.up.railway.app'   # Change this to your actual domain in production
+

@@ -3,9 +3,24 @@ from .models import Question, Subject,Answer,Vote,AnswerImage
 from django.contrib.auth.decorators import login_required
 from .forms import AnswerForm
 from django.contrib import messages
-import json
-from django.http import JsonResponse
-from django.db import models
+import io
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseUpload
+from google.oauth2 import service_account
+from django.conf import settings
+import os
+
+SERVICE_ACCOUNT_FILE = os.getenv('GOOGLE_SERVICE_ACCOUNT_FILE')
+QNA_IMAGE_FOLDER_ID = os.getenv('QNA_IMAGE_FOLDER_ID')
+SCOPES = ['https://www.googleapis.com/auth/drive']
+
+ 
+
+def get_drive_service():
+    creds = service_account.Credentials.from_service_account_file(
+        SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+    return build('drive', 'v3', credentials=creds)
+
 
 @login_required
 def question_list(request):
@@ -44,14 +59,15 @@ def ask_question(request):
     return render(request, 'QnA_forum/ask_question.html')
 
 
+@login_required
 def question_detail(request, question_id):
     """Display a single question and handle answer submission."""
     question = get_object_or_404(Question, id=question_id)
     answers = question.answers.all()
-    
+
     # Sort answers by total votes
     sorted_answers = sorted(answers, key=lambda a: a.total_votes(), reverse=True)
-    
+
     if request.method == "POST":
         form = AnswerForm(request.POST)
         if form.is_valid():
@@ -59,6 +75,7 @@ def question_detail(request, question_id):
             answer.question = question
             answer.user = request.user
             answer.save()
+
             images = request.FILES.getlist('images')
 
             if len(images) > 3:
@@ -66,7 +83,35 @@ def question_detail(request, question_id):
                 return redirect('QnA_forum:question_detail', question_id=question.id)
 
             for image in images:
-                AnswerImage.objects.create(answer=answer, image=image)
+                # Upload to Google Drive
+                file_stream = io.BytesIO(image.read())
+                file_metadata = {
+                    'name': image.name,
+                    'parents': [QNA_IMAGE_FOLDER_ID],  # Replace with actual folder ID
+                }
+                media = MediaIoBaseUpload(file_stream, mimetype=image.content_type)
+                drive_service = get_drive_service()
+                uploaded = drive_service.files().create(
+                    body=file_metadata,
+                     media_body=media,
+                    fields='id'
+                      ).execute()
+
+# Make the file publicly viewable
+                drive_service.permissions().create(
+                       fileId=uploaded['id'],
+                       body={
+                         'type': 'anyone',
+                         'role': 'reader'
+                   }
+                       ).execute()
+
+# Construct a direct image link
+                file_id = uploaded['id']
+                drive_url = f"https://drive.google.com/uc?export=view&id={file_id}"
+
+# Save the image URL
+                AnswerImage.objects.create(answer=answer, image_url=drive_url)
 
             return redirect('QnA_forum:question_detail', question_id=question.id)
     else:
@@ -77,8 +122,6 @@ def question_detail(request, question_id):
         'answers': sorted_answers,
         'form': form
     })
-
-
 
 @login_required
 def edit_question(request, question_id):

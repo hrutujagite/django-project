@@ -14,8 +14,8 @@ class Subject(models.Model):
 
 class Question(models.Model):
     """Model to store questions posted by users"""
-    content = models.TextField()  # ✅ Single field for asking question
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)  # Link to Subject model
+    content = models.TextField()  
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)  
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # User who asked the question
     created_at = models.DateTimeField(auto_now_add=True)
     pinned_by = models.ManyToManyField(User, related_name="pinned_questions", blank=True)
@@ -86,12 +86,13 @@ class Answer(models.Model):
 
 
 class AnswerImage(models.Model):
-    """Model to store multiple images linked to an answer"""
+    """Model to store Google Drive image links for an answer"""
     answer = models.ForeignKey(Answer, related_name="images", on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='answer_images/')  # Store images in 'media/answer_images/'
+    image_url = models.URLField(null=True,blank=True)  # Only stores the Google Drive URL
 
     def __str__(self):
         return f"Image for Answer {self.answer.id}"
+
 
 
 class Vote(models.Model):

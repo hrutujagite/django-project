@@ -26,6 +26,7 @@ class Notes(models.Model):
     SEMESTER_CHOICES = [(i, f"Semester {i}") for i in range(1, 9)]
 
     # Core fields
+    
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True, help_text="Enter a description of your notes (optional)")
     department = models.CharField(max_length=50, choices=DEPARTMENT_CHOICES)
@@ -37,6 +38,8 @@ class Notes(models.Model):
         help_text="Enter comma-separated tags (e.g., calculus, integration)"
     )
     file = models.FileField(upload_to='notes/')
+    drive_url = models.URLField(blank=True, null=True, help_text="Link to the uploaded file on Google Drive")
+
     uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notes")
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=STATUS_PENDING)
     uploaded_at = models.DateTimeField(auto_now_add=True)

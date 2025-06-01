@@ -15,6 +15,7 @@ urlpatterns = [
     path('toggle-report/<int:question_id>/', toggle_report_question, name='toggle_report_question'),
     path('question/<int:question_id>/pin/', toggle_pin_question, name='toggle_pin_question'),
     path('answer/<int:answer_id>/edit/', edit_answer, name='edit_answer'),
+    
 ]
 
 
